@@ -1,0 +1,79 @@
+[[extend 'layout.html']]
+
+<style>
+[v-cloak] {
+     display: none;
+}
+</style>
+
+<div class="section" id="vue-target" v-cloak>
+    <nav class="level mb-6">
+        <div class="level-item has-text-centered">
+            <div class="control block">
+                <input class="input" type="text" placeholder="Search" v-model="query" @keyup="search" />
+            </div>
+            <!-- <p class="control">
+                <button class="button">
+                    Search
+                </button>
+            </p> -->
+        </div>
+    </nav>
+    
+    <div v-if="!Array.isArray(results) || !results.length">
+        <h2 class="subtitle is-2 has-text-centered has-text-weight-semibold my-6">
+            Top 10 Brawls
+        </h2>
+        [[for row in rows:]]
+        <section class="hero is-primary is-small mb-3">
+            <div class="hero-body">
+                <nav class="level is-mobile">
+                    <div class="level-left">
+                        <div class="level-item">
+                            <h3 class="title is-3">
+                                # [[=row["count"] ]]
+                            </h3>
+                        </div>
+                    </div>
+                    [[for name, wins in zip(row["_item_name"], row["_num_of_wins"]): ]]
+                    <div class="level-item has-text-centered">
+                        <div>
+                            <p class="heading is-size-3 has-text-weight-medium">[[=name ]]</p>
+                            <p class="title has-text-weight-bold">[[=wins ]]</p>
+                        </div>
+                    </div>
+                    [[pass]]
+                </nav>
+            </div>
+        </section>
+        [[pass]]
+    </div>
+    
+    <div v-else>
+        <h2 class="subtitle is-2 has-text-centered has-text-weight-semibold my-6">Results</h2>
+        <div v-for="r in results">
+            <section class="hero is-primary is-small mb-3">
+                <div class="hero-body">
+                    <nav class="level is-mobile">
+                        <div v-for="(name, index) in r._item_name">
+                            <div class="level-item has-text-centered">
+                                <div>
+                                    <p class="heading is-size-3 has-text-weight-medium">{{name}}</p>
+                                    <p class="title has-text-weight-bold">{{r._num_of_wins[index]}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </nav>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
+[[block page_scripts]]
+<!-- Loads the index-specific js for Vue -->
+<script>
+  let search_url = "[[=XML(search_url)]]";
+</script>
+<script src="js/index.js"></script>
+[[end]]
