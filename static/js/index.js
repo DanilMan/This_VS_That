@@ -12,6 +12,7 @@ let init = (app) => {
         // Complete as you see fit.
         query: "",
         publix: false,
+        brawl_mode: true,
         players: [],
         results: [],
     };
@@ -35,21 +36,46 @@ let init = (app) => {
         
     };
     
-    app.clear_players = function () {
-        for(i = 0; i < app.vue.players.length; i++){
-            app.vue.players.fill(""); //not using it for now because inputs 
-        }                             //don't update after changed
+    app.submit = function () {
+        if(app.vue.players[1] !== ""){
+            axios.post(submit_url,
+            {
+                players: app.vue.players,
+                publix: app.vue.publix,
+            }).then(function (response) {
+                app.vue.players = response.data.players;
+                app.vue.publix = false;
+            });
+        }
     };
     
     app.set_publix_mode = function () {
         app.vue.publix = !app.vue.publix;
+    };
+    
+    app.set_brawl_mode = function () {
+        app.vue.brawl_mode = !app.vue.brawl_mode;
+        if(app.vue.brawl_mode){
+            app.vue.clear_players();
+        }
+        // else{
+        //     app.vue.submit();
+        // }
+    };
+    
+    app.clear_players = function () {
+        for(i = 0; i < app.vue.players.length; i++){
+            app.vue.players[i] = "";
+        }
     };
 
     // This contains all the methods.
     app.methods = {
         // Complete as you see fit.
         search: app.search,
+        submit: app.submit,
         set_publix_mode: app.set_publix_mode,
+        set_brawl_mode: app.set_brawl_mode,
         clear_players: app.clear_players,
     };
 

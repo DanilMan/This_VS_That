@@ -30,6 +30,7 @@ from yatl.helpers import A
 from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash
 from py4web.utils.url_signer import URLSigner
 from .models import get_user_email, get_user
+import random
 
 url_signer = URLSigner(session)
 
@@ -61,13 +62,14 @@ def index():
     return dict(
         rows=rows,
         _user=_user,
-        search_url = URL('search', signer=url_signer)
+        search_url = URL('search', signer=url_signer),
+        submit_url = URL('submit',signer=url_signer),
         )
     
 @action('search')
-@action.uses()
+@action.uses(db)
 def search():
-    #qs = filter(None, re.split(';|"| \'|,|/|\\ |\s', q))
+    #qs = list(filter(None, re.split(';|"| \'|,|/|\\ |\s', q)))
     
     rows = []
     
@@ -112,5 +114,118 @@ def search():
 def user():
     ok = True
     return dict(ok=ok)
+
+
+@action('submit', method="POST")
+@action.uses(db, session, url_signer.verify())
+def submit():
+    players = request.json.get('players')
+    players = list(filter(None, players))
+    random.shuffle(players)
+    print(players)
     
-    
+    if(get_user()):
+        publix = request.json.get('publix')
+        pub = 0
+        if publix:
+            pub = 1
+        player_name_ids = []
+        for word in players:
+            curr_item = db(db.item_name.item_str == word).select().first()
+            if curr_item:
+                num = curr_item.num_of_uses + 1
+            else:
+                num = 1
+            item_id = db.item_name.update_or_insert((db.item_name.item_str == word), item_str=word, num_of_uses=num)
+            if not item_id:
+                item_id = curr_item.id
+            player_name_ids.append(item_id)
+            
+        _query = False
+        for name_id in player_name_ids:
+            _query = _query | (db.item.item_name_id == name_id)
+        if _query:
+            final_brawl_id = 0
+            items = db(_query).select(db.item.ALL, orderby=db.item.brawl_id)
+            if items:
+                leng = len(players)
+                print(leng)
+                counter = 1
+                brawl_ids = []
+                if leng > 0:
+                    prev_brawl_id = items[0].brawl_id
+                for item in items:
+                    print(item)
+                    if prev_brawl_id != item.brawl_id:
+                        counter = 1
+                    if leng == counter:
+                        brawl_ids.append(item.brawl_id)
+                    prev_brawl_id = item.brawl_id
+                    counter += 1
+                for brawl_id in brawl_ids:
+                    brawl = db(db.item.brawl_id == brawl_id).select()
+                    print("here")
+                    if len(brawl) == len(players):
+                        final_brawl_id = brawl_id
+                        break
+            if final_brawl_id == 0:
+                brawl_id = db.brawl.insert(
+                    num_of_public = pub,
+                    num_of_plays = 1,
+                    )
+                inc = pub
+                for player_name_id in player_name_ids:
+                    db.item.insert(
+                        item_name_id = player_name_id,
+                        num_of_wins = inc,
+                        brawl_id = brawl_id,
+                        )
+                    inc = 0
+            else:
+                brawl_set = db(db.brawl.id == final_brawl_id)
+                _brawl = brawl_set.select().first()
+                brawl_id = brawl_set.update(
+                    num_of_public = _brawl.num_of_public + pub,
+                    num_of_plays = _brawl.num_of_public + 1
+                    )
+                item_set = db(db.item.id == player_name_ids[0])
+                _item = item_set.select().first()
+                item_set.update(
+                    num_of_wins = pub
+                    )
+                # brawl exists (update existing one)
+    db.user_brawl.insert(
+        brawl_id = brawl_id,
+        placement_order_ids = player_name_ids,
+        public = publix
+        )
+    return dict(players=players)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
