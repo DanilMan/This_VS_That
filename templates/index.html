@@ -10,7 +10,7 @@
     <nav class="level mb-6">
         <div class="level-item has-text-centered">
             <div class="control block">
-                <input class="input" type="text" placeholder="Search" v-model="query" @keyup="search" />
+                <input class="input has-text-weight-bold has-text-black-bis has-background-link-dark is-link is-light" type="text" placeholder="Search" v-model="query" @keyup="search" />
             </div>
             <!-- <p class="control">
                 <button class="button">
@@ -20,17 +20,73 @@
         </div>
     </nav>
     
+    <div>
+        <section class="hero  has-background-primary-dark is-small mb-3">
+            <div class="hero-body pt-4 pb-1">
+                <nav class="level is-mobile my-0">
+                    <div v-for="i in 4">
+                        <div class="level-item has-text-centered mt-1">
+                            <div v-if="(i===1) || (players[i-2] !== '')">
+                                <input class="input has-text-weight-bold has-text-black-bis has-background-grey-lighter is-link is-light" type="text" :placeholder="'Player ' + i" v-model="players[i-1]" />
+                            </div>
+                            <div v-else>
+                                {{players[i-1] = ''}}
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+                <nav class="level is-mobile my-0">
+                    <div v-for="i in 4">
+                        <div class="level-item has-text-centered mt-1">
+                            <div v-if="players[i+2] !== ''">
+                                <input class="input has-text-weight-bold has-text-black-bis has-background-grey-lighter is-link is-light" type="text" :placeholder="'Player ' + (i+4)" v-model="players[i+3]" />
+                            </div>
+                            <div v-else>
+                                {{players[i+3] = ''}}
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+                <nav class="level is-mobile my-2">
+                    <span class="level-left has-text-centered">
+                        <h3 class="subtitle has-text-black-bis is-3 has-text-weight-semibold">START A BRAWL</h3>
+                    </span>
+                    <div class="level-right">
+                        <div class="buttons">
+                            [[if _user:]]
+                                <button v-if="publix" class="button is-light has-text-black-bis" @click="set_publix_mode">
+                                    <i class="fa fa-unlock"></i><p>&nbsp;</p>
+                                    <h6 class="subtitle has-text-black-bis is-7 has-text-weight-semibold">PUBLIC</h6>
+                                </button>
+                                <button v-else class="button is-black has-text-grey" @click="set_publix_mode">
+                                    <i class="fa fa-lock"></i><p>&nbsp;</p>
+                                    <h6 class="subtitle has-text-grey is-7 has-text-weight-semibold">PRIVATE</h6>
+                                </button>
+                            [[pass]]
+                            <!--<button class="button is-danger has-background-danger-dark" @click="clear_players">
+                                <h6 class="subtitle has-text-grey-darker is-7 has-text-weight-bold">CLEAR</h6>
+                            </button>-->
+                            <button class="button is-primary">
+                                <h6 class="subtitle has-text-black-bis is-5 has-text-weight-bold">GO</h6>
+                            </button>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </section>
+    </div>
+    
     <div v-if="!Array.isArray(results) || !results.length">
-        <h2 class="subtitle is-2 has-text-centered has-text-weight-semibold my-6">
+        <h2 class="subtitle has-text-link-dark is-2 has-text-centered has-text-weight-semibold my-6">
             Top 10 Brawls
         </h2>
         [[for row in rows:]]
-        <section class="hero is-primary is-small mb-3">
+        <section class="hero  has-background-link-dark is-small mb-3">
             <div class="hero-body">
                 <nav class="level is-mobile">
                     <div class="level-left">
                         <div class="level-item">
-                            <h3 class="title is-3">
+                            <h3 class="title is-3 has-text-black-bis">
                                 # [[=row["count"] ]]
                             </h3>
                         </div>
@@ -38,8 +94,8 @@
                     [[for name, wins in zip(row["_item_name"], row["_num_of_wins"]): ]]
                     <div class="level-item has-text-centered">
                         <div>
-                            <p class="heading is-size-3 has-text-weight-medium">[[=name ]]</p>
-                            <p class="title has-text-weight-bold">[[=wins ]]</p>
+                            <p class="heading has-text-black-bis is-size-3 has-text-weight-medium">[[=name ]]</p>
+                            <p class="title has-text-black-bis has-text-weight-bold">[[=wins ]]</p>
                         </div>
                     </div>
                     [[pass]]
@@ -50,16 +106,16 @@
     </div>
     
     <div v-else>
-        <h2 class="subtitle is-2 has-text-centered has-text-weight-semibold my-6">Results</h2>
+        <h2 class="subtitle has-text-link-dark is-2 has-text-centered has-text-weight-semibold my-6">Results</h2>
         <div v-for="r in results">
-            <section class="hero is-primary is-small mb-3">
+            <section class="hero has-background-link-dark is-small mb-3">
                 <div class="hero-body">
                     <nav class="level is-mobile">
                         <div v-for="(name, index) in r._item_name">
                             <div class="level-item has-text-centered">
                                 <div>
-                                    <p class="heading is-size-3 has-text-weight-medium">{{name}}</p>
-                                    <p class="title has-text-weight-bold">{{r._num_of_wins[index]}}</p>
+                                    <p class="heading has-text-black-bis is-size-3 has-text-weight-medium">{{name}}</p>
+                                    <p class="title has-text-black-bis has-text-weight-bold">{{r._num_of_wins[index]}}</p>
                                 </div>
                             </div>
                         </div>

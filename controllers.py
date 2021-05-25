@@ -29,7 +29,7 @@ from py4web import action, request, abort, redirect, URL
 from yatl.helpers import A
 from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash
 from py4web.utils.url_signer import URLSigner
-from .models import get_user_email
+from .models import get_user_email, get_user
 
 url_signer = URLSigner(session)
 
@@ -44,6 +44,7 @@ url_signer = URLSigner(session)
 @action('index')
 @action.uses(db, auth, 'index.html')
 def index():
+    _user = get_user()
     rows = db(db.brawl.num_of_public != 0).select(db.brawl.ALL, orderby=~db.brawl.num_of_public, limitby=(0, 10)).as_list()
     counter = 0
     for row in rows:
@@ -57,7 +58,11 @@ def index():
             name_list.append((db.item_name[_item.item_name_id]).item_str)
         row["_num_of_wins"] = wins_list
         row["_item_name"] = name_list
-    return dict(rows=rows, search_url = URL('search', signer=url_signer))
+    return dict(
+        rows=rows,
+        _user=_user,
+        search_url = URL('search', signer=url_signer)
+        )
     
 @action('search')
 @action.uses()
@@ -101,11 +106,11 @@ def search():
                 row["_item_name"] = name_list
         
     return dict(results=rows)
-    
-    
-    
-    
-    
-    
+
+@action('user')
+@action.uses(db, session, auth.user, 'user.html')
+def user():
+    ok = True
+    return dict(ok=ok)
     
     

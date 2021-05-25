@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="has-background-black-bis" lang="en">
   <head>
     <base href="[[=URL('static')]]/">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -13,10 +13,15 @@
     <!-- Navigation bar -->
     <nav class="navbar is-dark" role="navigation" aria-label="main navigation">
       <div class="navbar-brand">
-        <a class="navbar-item" href="[[=URL('index')]]">
-          Learn py4web
+        <div class="navbar-item" href="[[=URL('index')]]">
+            <div class="buttons">
+                <a class="button is-link is-dark has-text-white-ter" href="[[=URL()]]"><icon class="fa fa-home"></icon></a>
+                [[if globals().get('user'):]]
+                    <a class="button has-background-grey-lighter" href="[[=URL('user')]]"><icon class="fa fa-user"></icon></a>
+                [[pass]]
+            </div>
           <!-- <img class="logo" width="150" src="images/site_icon.png"> -->
-        </a>
+        </div>
 
 
         <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="the-navbar-menu"
@@ -43,7 +48,7 @@
                   <div class="navbar-dropdown">
                     <a class="navbar-item" href="[[=URL('auth/logout')]]">Logout</a>
                     <a class="navbar-item" href="[[=URL('auth/profile')]]">Profile</a>
-                    <a class="navbar-item" href="[[=URL('auth/change_password')]]">Change Password</a></li>
+                    <a class="navbar-item" href="[[=URL('auth/change_password')]]">Change Password</a>
 
                   </div>
                 </div>
@@ -60,12 +65,12 @@
     <!-- beginning of HTML inserted by extending template -->
     [[include]]
     <!-- end of HTML inserted by extending template -->
-    <footer class="footer">
+    <!--<footer class="footer">
       <div class="content has-text-centered">
         Made with <a href="https://py4web.com">py4web</a>.
-        <a href="https://learn-py4web.github.io">Learn py4web!</a>
+        <a href="https://learn-py4web.github.io">Learn py4web!</a> 
       </div>
-    </footer>
+    </footer>-->
   </body>
   <script src="js/sugar.min.js"></script>
   <script src="js/axios.min.js"></script>

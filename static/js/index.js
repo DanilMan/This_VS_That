@@ -11,6 +11,8 @@ let init = (app) => {
     app.data = {
         // Complete as you see fit.
         query: "",
+        publix: false,
+        players: [],
         results: [],
     };
 
@@ -32,12 +34,23 @@ let init = (app) => {
         }
         
     };
-
+    
+    app.clear_players = function () {
+        for(i = 0; i < app.vue.players.length; i++){
+            app.vue.players.fill(""); //not using it for now because inputs 
+        }                             //don't update after changed
+    };
+    
+    app.set_publix_mode = function () {
+        app.vue.publix = !app.vue.publix;
+    };
 
     // This contains all the methods.
     app.methods = {
         // Complete as you see fit.
-        search: app.search, 
+        search: app.search,
+        set_publix_mode: app.set_publix_mode,
+        clear_players: app.clear_players,
     };
 
     // This creates the Vue instance.
@@ -51,6 +64,9 @@ let init = (app) => {
     app.init = () => {
         // Put here any initialization code.
         // Typically this is a server GET call to load the data.
+        for(i = 0; i < 8; i++){
+            app.vue.players.push("");
+        }
     };
 
     // Call to the initializer.
