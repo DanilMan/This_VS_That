@@ -55,12 +55,6 @@ let init = (app) => {
     
     app.set_brawl_mode = function () {
         app.vue.brawl_mode = !app.vue.brawl_mode;
-        if(app.vue.brawl_mode){
-            app.vue.clear_players();
-        }
-        // else{
-        //     app.vue.submit();
-        // }
     };
     
     app.clear_players = function () {

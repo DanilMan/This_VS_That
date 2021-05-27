@@ -18,7 +18,6 @@ def get_time():
 
 db.define_table(
     'brawl',
-    Field('item_search_str', requires=IS_NOT_EMPTY()),
     Field('num_of_public', 'integer', default=0, requires=IS_INT_IN_RANGE(0, 1e6)),
     Field('num_of_plays', 'integer', default=1, requires=IS_INT_IN_RANGE(0, 1e6)),
 )

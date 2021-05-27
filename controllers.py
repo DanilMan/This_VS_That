@@ -84,7 +84,7 @@ def search():
     _query = False
     for _item_name in item_names:
         _query = _query | (db.item.item_name_id == _item_name.id)
-        print(db(db.item.item_name_id == _item_name.id).count())
+        #print(db(db.item.item_name_id == _item_name.id).count())
     
     if _query:
         items = db(_query).select()
@@ -164,8 +164,9 @@ def submit():
                     counter += 1
                 for brawl_id in brawl_ids:
                     brawl = db(db.item.brawl_id == brawl_id).select()
-                    print("here")
+                    print(brawl_id)
                     if len(brawl) == len(players):
+                        print("brawl length: " + str(len(brawl)))
                         final_brawl_id = brawl_id
                         break
             if final_brawl_id == 0:
@@ -184,21 +185,24 @@ def submit():
             else:
                 brawl_set = db(db.brawl.id == final_brawl_id)
                 _brawl = brawl_set.select().first()
-                brawl_id = brawl_set.update(
+                brawl_set.update(
                     num_of_public = _brawl.num_of_public + pub,
-                    num_of_plays = _brawl.num_of_public + 1
+                    num_of_plays = _brawl.num_of_plays + 1
                     )
-                item_set = db(db.item.id == player_name_ids[0])
+                print("num_of_public: " + str(_brawl.num_of_public + pub))
+                print("num_of_plays: " + str(_brawl.num_of_plays + 1))
+                item_set = db((db.item.item_name_id == player_name_ids[0]) & (db.item.brawl_id == final_brawl_id))
                 _item = item_set.select().first()
                 item_set.update(
-                    num_of_wins = pub
+                    num_of_wins = _item.num_of_wins + pub
                     )
-                # brawl exists (update existing one)
-    db.user_brawl.insert(
-        brawl_id = brawl_id,
-        placement_order_ids = player_name_ids,
-        public = publix
-        )
+                print("num_of_wins: " + str(_item.num_of_wins + pub))
+                brawl_id = final_brawl_id
+            db.user_brawl.insert(
+                brawl_id = brawl_id,
+                placement_order_ids = player_name_ids,
+                public = publix
+            )
     return dict(players=players)
 
 
