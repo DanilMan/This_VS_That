@@ -34,14 +34,6 @@ import random
 
 url_signer = URLSigner(session)
 
-#@action('index')
-#@action.uses(db, auth, 'index.html')
-#def index():
-#    return dict(
-#        # COMPLETE: return here any signed URLs you need.
-#        my_callback_url = URL('my_callback', signer=url_signer),
-#    )
-
 @action('index')
 @action.uses(db, auth, 'index.html')
 def index():
@@ -63,9 +55,38 @@ def index():
         rows=rows,
         _user=_user,
         search_url = URL('search', signer=url_signer),
-        submit_url = URL('submit',signer=url_signer),
+        submit_url = URL('submit', signer=url_signer),
         )
-    
+
+@action('user')
+@action.uses(db, auth, 'user.html')
+def user():
+    curr_user = get_user()
+    return dict(
+        curr_user=curr_user,
+        submit_url = URL('submit', signer=url_signer),
+        load_user_brawls_url = URL('load_user_brawls', signer=url_signer)
+        )
+
+@action('load_user_brawls')
+@action.uses(db, auth)
+def load_user_brawls():
+    rows = db(db.user_brawl.created_by == get_user_email()).select()
+    results = []
+    for index, row in enumerate(rows):
+        result = {}
+        result["id"] = row.id
+        result["public"] = row.public
+        for _index, _id in enumerate(row.placement_order_ids):
+            item = db(db.item.id == _id).select().first()
+            name = db(db.item_name.id == item.item_name_id).select().first()
+            result[str(_index)] = name.item_str
+        results.append(result)
+        
+    return dict(
+        results=results,
+        )
+
 @action('search')
 @action.uses(db)
 def search():
@@ -108,13 +129,6 @@ def search():
                 row["_item_name"] = name_list
         
     return dict(results=rows)
-
-@action('user')
-@action.uses(db, session, auth.user, 'user.html')
-def user():
-    ok = True
-    return dict(ok=ok)
-
 
 @action('submit', method="POST")
 @action.uses(db, session, url_signer.verify())
