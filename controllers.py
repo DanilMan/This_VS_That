@@ -121,7 +121,11 @@ def user():
 def submit():
     players = request.json.get('players')
     players = list(filter(None, players))
-    random.shuffle(players)
+    #random.shuffle(players)
+    #player_order = []
+    #for index, player in enumerate(players):
+    #    player_order.append(index)
+    #random.suffle(player_order)
     print(players)
     
     if(get_user()):
@@ -132,11 +136,11 @@ def submit():
         player_name_ids = []
         for word in players:
             curr_item = db(db.item_name.item_str == word).select().first()
-            if curr_item:
-                num = curr_item.num_of_uses + 1
-            else:
-                num = 1
-            item_id = db.item_name.update_or_insert((db.item_name.item_str == word), item_str=word, num_of_uses=num)
+            #if curr_item:
+            #    num = curr_item.num_of_uses + 1
+            #else:
+            #    num = 1
+            item_id = db.item_name.update_or_insert((db.item_name.item_str == word), item_str=word) #, num_of_uses=num
             if not item_id:
                 item_id = curr_item.id
             player_name_ids.append(item_id)
@@ -169,6 +173,12 @@ def submit():
                         print("brawl length: " + str(len(brawl)))
                         final_brawl_id = brawl_id
                         break
+            
+            shuffled_items = []
+            for item in items:
+                shuffled_items.append(item.id)
+            random.shuffle(shuffled_items)
+            
             if final_brawl_id == 0:
                 brawl_id = db.brawl.insert(
                     num_of_public = pub,
@@ -182,6 +192,17 @@ def submit():
                         brawl_id = brawl_id,
                         )
                     inc = 0
+                    player_name_check = db(db.item_name.id == player_name_id)
+                    player_name = player_name_check.select().first()
+                    player_name_check.update(
+                        num_of_uses = player_name.num_of_uses + 1
+                        )
+                
+                db.user_brawl.insert(
+                    brawl_id = brawl_id,
+                    placement_order_ids = shuffled_items,
+                    public = publix
+                )
             else:
                 brawl_set = db(db.brawl.id == final_brawl_id)
                 _brawl = brawl_set.select().first()
@@ -191,19 +212,36 @@ def submit():
                     )
                 print("num_of_public: " + str(_brawl.num_of_public + pub))
                 print("num_of_plays: " + str(_brawl.num_of_plays + 1))
-                item_set = db((db.item.item_name_id == player_name_ids[0]) & (db.item.brawl_id == final_brawl_id))
+                item_set = db((db.item.id == shuffled_items[0]))
                 _item = item_set.select().first()
                 item_set.update(
                     num_of_wins = _item.num_of_wins + pub
                     )
                 print("num_of_wins: " + str(_item.num_of_wins + pub))
                 brawl_id = final_brawl_id
-            db.user_brawl.insert(
-                brawl_id = brawl_id,
-                placement_order_ids = player_name_ids,
-                public = publix
-            )
+                user_brawl_check = db(db.user_brawl.brawl_id == brawl_id)
+                _user_brawl = user_brawl_check.select().first()
+                if _user_brawl:
+                    #if _user_brawl.public:
+                        # make changes to connected tables
+                    user_brawl_check.update(
+                        placement_order_ids = shuffled_items,
+                        public = publix
+                        )
+                else:
+                    db.user_brawl.insert(
+                        brawl_id = brawl_id,
+                        placement_order_ids = shuffled_items,
+                        public = publix
+                    )
+                    for player_name_id in player_name_ids:
+                        player_name_check = db(db.item_name.id == player_name_id)
+                        player_name = player_name_check.select().first()
+                        player_name_check.update(
+                            num_of_uses = player_name.num_of_uses + 1
+                        )
     return dict(players=players)
+    #items is not a set of only the items in the brawl, it's a list of items all potentially within the brawl. You need to figure out a way to get the order, maybe go back to what you had before with the shuffled list of indeces and use that.
 
 
 

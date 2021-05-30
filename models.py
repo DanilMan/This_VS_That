@@ -25,7 +25,7 @@ db.define_table(
 db.define_table(
     'item_name',
     Field('item_str', requires=IS_NOT_EMPTY()),
-    Field('num_of_uses', 'integer', default=1, requires=IS_INT_IN_RANGE(0, 1e6)),
+    Field('num_of_uses', 'integer', default=0, requires=IS_INT_IN_RANGE(0, 1e6)),
 )
 
 db.define_table(
