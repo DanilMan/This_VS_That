@@ -10,58 +10,60 @@
     <div>
         <section class="hero has-background-primary-dark is-small mb-3">
             <div class="hero-body pt-4 pb-1">
-                <div v-if="brawl_mode">
-                    <nav class="level is-mobile my-0">
-                        <div v-for="i in 4">
-                            <div class="level-item has-text-centered mt-1">
-                                <div v-if="(i===1) || (players[i-2] !== '')">
-                                    <input class="input has-text-weight-bold has-text-black-bis has-background-grey-lighter is-link is-light" type="text" :placeholder="'Player ' + i" v-model="players[i-1]" />
-                                </div>
-                                <div v-else>
-                                    {{players[i-1] = ''}}
-                                </div>
+                <nav class="level is-mobile my-0">
+                    <div v-for="i in 4">
+                        <div class="level-item has-text-centered mt-1">
+                            <div v-if="(i===1) || (players[i-2] !== '')">
+                                <input class="input has-text-weight-bold has-text-black-bis has-background-grey-lighter is-link is-light" type="text" :placeholder="'Player ' + i" v-model="players[i-1]" />
+                            </div>
+                            <div v-else>
+                                {{players[i-1] = ''}}
                             </div>
                         </div>
-                    </nav>
-                    <nav class="level is-mobile my-0">
-                        <div v-for="i in 4">
-                            <div class="level-item has-text-centered mt-1">
-                                <div v-if="players[i+2] !== ''">
-                                    <input class="input has-text-weight-bold has-text-black-bis has-background-grey-lighter is-link is-light" type="text" :placeholder="'Player ' + (i+4)" v-model="players[i+3]" />
-                                </div>
-                                <div v-else>
-                                    {{players[i+3] = ''}}
-                                </div>
+                    </div>
+                </nav>
+                <nav class="level is-mobile my-0">
+                    <div v-for="i in 4">
+                        <div class="level-item has-text-centered mt-1">
+                            <div v-if="players[i+2] !== ''">
+                                <input class="input has-text-weight-bold has-text-black-bis has-background-grey-lighter is-link is-light" type="text" :placeholder="'Player ' + (i+4)" v-model="players[i+3]" />
+                            </div>
+                            <div v-else>
+                                {{players[i+3] = ''}}
                             </div>
                         </div>
-                    </nav>
-                    <nav class="level is-mobile my-2">
-                        <span class="level-left has-text-centered">
-                            <h3 class="subtitle has-text-black-bis is-3 has-text-weight-semibold">START A BRAWL</h3>
-                        </span>
-                        <div class="level-right">
-                            <div class="buttons">
-                                <button v-if="publix" class="button is-light has-text-black-bis" @click="set_publix_mode">
-                                    <i class="fa fa-unlock"></i><p>&nbsp;</p>
-                                    <h6 class="subtitle has-text-black-bis is-7 has-text-weight-semibold">PUBLIC</h6>
-                                </button>
-                                <button v-else class="button is-black has-text-grey" @click="set_publix_mode">
-                                    <i class="fa fa-lock"></i><p>&nbsp;</p>
-                                    <h6 class="subtitle has-text-grey is-7 has-text-weight-semibold">PRIVATE</h6>
-                                </button>
-                                <!--<button class="button is-danger has-background-danger-dark" @click="clear_players">
-                                    <h6 class="subtitle has-text-grey-darker is-7 has-text-weight-bold">CLEAR</h6>
-                                </button>-->
-                                <button class="button is-primary">
-                                    <h6 class="subtitle has-text-black-bis is-5 has-text-weight-bold" @click="set_brawl_mode() + submit()">GO</h6>
-                                </button>
-                            </div>
+                    </div>
+                </nav>
+                <nav class="level is-mobile my-2">
+                    <span class="level-left has-text-centered">
+                        <h3 class="subtitle has-text-black-bis is-3 has-text-weight-semibold">START A BRAWL</h3>
+                    </span>
+                    <div class="level-right">
+                        <div class="buttons">
+                            <button v-if="publix" class="button is-light has-text-black-bis" @click="set_publix_mode">
+                                <i class="fa fa-unlock"></i><p>&nbsp;</p>
+                                <h6 class="subtitle has-text-black-bis is-7 has-text-weight-semibold">PUBLIC</h6>
+                            </button>
+                            <button v-else class="button is-black has-text-grey" @click="set_publix_mode">
+                                <i class="fa fa-lock"></i><p>&nbsp;</p>
+                                <h6 class="subtitle has-text-grey is-7 has-text-weight-semibold">PRIVATE</h6>
+                            </button>
+                            <!--<button class="button is-danger has-background-danger-dark" @click="clear_players">
+                                <h6 class="subtitle has-text-grey-darker is-7 has-text-weight-bold">CLEAR</h6>
+                            </button>-->
+                            <button class="button is-primary">
+                                <h6 class="subtitle has-text-black-bis is-5 has-text-weight-bold" @click="submit">GO</h6>
+                            </button>
                         </div>
-                    </nav>
-                </div>
-                <div v-else>
+                    </div>
+                </nav>
+            </div>
+        </section>
+        <div v-for="(result, r_index) in results">
+            <section class="hero has-background-primary-dark is-small mb-3">
+                <div class="hero-body pt-4 pb-1">
                     <nav class="level is-mobile">
-                        <div v-for="(name, index) in players">
+                        <div v-for="(name, index) in result['names']">
                             <div v-if="name != ''">
                                 <div class="level-item has-text-centered">
                                     <div>
@@ -73,55 +75,27 @@
                         </div>
                     </nav>
                     <nav class="level is-mobile">
-                        <div class="level-item has-text-centered">
-                            <button class="button is-primary has-text-centered">
-                                <h6 class="subtitle has-text-black-bis is-5 has-text-weight-bold" @click="clear_players() + set_brawl_mode()">NEW BRAWL</h6>
-                            </button>
+                        <div class="level-left"></div>
+                        <div class="level-right">
+                            <div class="buttons">
+                                <button v-if="result['public']" class="button is-light has-text-black-bis" @click="set_public_mode(r_index)">
+                                    <i class="fa fa-unlock"></i><p>&nbsp;</p>
+                                    <h6 class="subtitle has-text-black-bis is-7 has-text-weight-semibold">PUBLIC</h6>
+                                </button>
+                                <button v-else class="button is-black has-text-grey" @click="set_public_mode(r_index)">
+                                    <i class="fa fa-lock"></i><p>&nbsp;</p>
+                                    <h6 class="subtitle has-text-grey is-7 has-text-weight-semibold">PRIVATE</h6>
+                                </button>
+                                <button class="button  is-danger is-dark">
+                                    <h6 class="subtitle has-text-black-bis is-4" @click="_delete(r_index)">
+                                        <i class="fa fa-trash-o"></i>
+                                    </h6>
+                                </button>
+                            </div>
                         </div>
                     </nav>
                 </div>
-            </div>
-        </section>
-        
-        <div v-for="(result, r_index) in results">
-            <div v-if="'_idx' in result">
-                <section class="hero has-background-primary-dark is-small mb-3">
-                    <div class="hero-body pt-4 pb-1">
-                        <nav class="level is-mobile">
-                            <div v-for="(name, index) in result['names']">
-                                <div v-if="name != ''">
-                                    <div class="level-item has-text-centered">
-                                        <div>
-                                            <p class="heading has-text-black-bis is-size-3 has-text-weight-medium">{{name}}</p>
-                                            <p class="title has-text-black-bis has-text-weight-bold">{{(index+1)}}st</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </nav>
-                        <nav class="level is-mobile">
-                            <div class="level-left"></div>
-                            <div class="level-right">
-                                <div class="buttons">
-                                    <button v-if="result['public']" class="button is-light has-text-black-bis" @click="set_public_mode(r_index)">
-                                        <i class="fa fa-unlock"></i><p>&nbsp;</p>
-                                        <h6 class="subtitle has-text-black-bis is-7 has-text-weight-semibold">PUBLIC</h6>
-                                    </button>
-                                    <button v-else class="button is-black has-text-grey" @click="set_public_mode(r_index)">
-                                        <i class="fa fa-lock"></i><p>&nbsp;</p>
-                                        <h6 class="subtitle has-text-grey is-7 has-text-weight-semibold">PRIVATE</h6>
-                                    </button>
-                                    <button class="button  is-danger is-dark">
-                                        <h6 class="subtitle has-text-black-bis is-4" @click="_delete(r_index)">
-                                            <i class="fa fa-trash-o"></i>
-                                        </h6>
-                                    </button>
-                                </div>
-                            </div>
-                        </nav>
-                    </div>
-                </section>
-            </div>
+            </section>
         </div>
     </div>
 </div>

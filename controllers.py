@@ -292,7 +292,10 @@ def submit():
 def set_public():
     element = request.json.get('element')
     mode = request.json.get('mode')
-    arith = int(mode)
+    if mode:
+        arith = 1
+    else:
+        arith = -1
     
     user_brawl_check = db(db.user_brawl.id == element["id"])
     user_brawl = user_brawl_check.select().first()
