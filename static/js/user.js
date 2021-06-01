@@ -19,11 +19,7 @@ let init = (app) => {
     app.enumerate = (a) => {
         // This adds an _idx field to each element of the array.
         let k = 0;
-        a.map((e) => {
-            if(e){
-                e._idx = k++;
-            }
-            });
+        a.map((e) => {e._idx = k++;});
         return a;
     };
     
@@ -49,6 +45,16 @@ let init = (app) => {
         app.vue.publix = !app.vue.publix;
     };
     
+    app.set_public_mode = function (index) {
+        if(app.vue.results[index].public) {
+            app.set_public(index, false);
+        }
+        else{
+            app.set_public(index, true);
+        }
+        app.vue.results[index].public = !(app.vue.results[index].public);
+    };
+    
     app.set_brawl_mode = function () {
         app.vue.brawl_mode = !app.vue.brawl_mode;
         if(app.vue.brawl_mode){
@@ -56,8 +62,8 @@ let init = (app) => {
                 new_result_id = (app.vue.results)[0].id;
             }
             for(i = 1; i < app.vue.results.length; i++){
-                if(((app.vue.results)[i]) && ((app.vue.results)[i].id == new_result_id)){
-                    (app.vue.results)[i] = undefined;
+                if((app.vue.results)[i].id == new_result_id){
+                    (app.vue.results).splice(i,1);
                 }
             }
             app.enumerate(app.vue.results);
@@ -69,14 +75,41 @@ let init = (app) => {
             app.vue.players[i] = "";
         }
     };
+    
+    app.set_public = function (index, mode) {
+        axios.post(set_public_url,
+            {
+                element: app.vue.results[index],
+                mode: mode,
+            });
+    };
+    
+    app._delete = function (index) {
+        let id = app.vue.results[index].id
+        axios.post(_delete_url,
+            {
+                element: app.vue.results[index]
+            }).then(function () {
+                for (let i = 0; i < app.vue.results.length; i++) {
+                    if (app.vue.results[i].id == id) {
+                        app.vue.results.splice(i, 1);
+                        app.enumerate(app.vue.results);
+                        break;
+                    }
+                }
+            });
+    };
 
     // This contains all the methods.
     app.methods = {
         // Complete as you see fit.
         submit: app.submit,
         set_publix_mode: app.set_publix_mode,
+        set_public_mode: app.set_public_mode,
         set_brawl_mode: app.set_brawl_mode,
         clear_players: app.clear_players,
+        set_public: app.set_public,
+        _delete: app._delete,
     };
 
     // This creates the Vue instance.

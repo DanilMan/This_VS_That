@@ -65,7 +65,9 @@ def user():
     return dict(
         curr_user=curr_user,
         submit_url = URL('submit', signer=url_signer),
-        load_user_brawls_url = URL('load_user_brawls', signer=url_signer)
+        load_user_brawls_url = URL('load_user_brawls', signer=url_signer),
+        set_public_url = URL('set_public', signer=url_signer),
+        _delete_url = URL('_delete', signer=url_signer),
         )
 
 @action('load_user_brawls')
@@ -285,10 +287,76 @@ def submit():
         publix = False
     return dict(players=players, user_brawl_id=_user_brawl, publix=publix)
 
+@action('set_public', method="POST")
+@action.uses(db, session, url_signer.verify())
+def set_public():
+    element = request.json.get('element')
+    mode = request.json.get('mode')
+    arith = int(mode)
+    
+    user_brawl_check = db(db.user_brawl.id == element["id"])
+    user_brawl = user_brawl_check.select().first()
+    
+    user_brawl_check.update(
+        public = mode
+        )
+    
+    brawl_check = db(db.brawl.id == user_brawl.brawl_id)
+    brawl = brawl_check.select().first()
+    
+    brawl_check.update(
+        num_of_public = brawl.num_of_public + arith
+        )
+    
+    item_check = db(db.item.id == (user_brawl.placement_order_ids)[0])
+    item = item_check.select().first()
+    
+    item_check.update(
+        num_of_wins = item.num_of_wins + arith
+        )
+    return "ok"
 
-
-
-
+@action('_delete', method="POST")
+@action.uses(db, session, url_signer.verify())
+def _delete():
+    element = request.json.get('element')
+    arith = int(element["public"])
+    
+    user_brawl_check = db(db.user_brawl.id == element["id"])
+    user_brawl = user_brawl_check.select().first()
+    
+    brawl_check = db(db.brawl.id == user_brawl.brawl_id)
+    brawl = brawl_check.select().first()
+    
+    items_check = db(db.item.brawl_id == brawl.id)
+    items = items_check.select()
+    
+    for item in items:
+        item_name_check = db(db.item_name.id == item.item_name_id)
+        item_name = item_name_check.select().first()
+        if item_name.num_of_uses > 1:
+            item_name_check.update(
+                num_of_uses = item_name.num_of_uses - 1
+                )
+        else:
+            item_name_check.delete()
+    
+    if brawl.num_of_plays > 1:
+        brawl_check.update(
+            num_of_public = brawl.num_of_public - arith,
+            num_of_plays = brawl.num_of_plays - 1
+            )
+        item_check = db(db.item.id == (user_brawl.placement_order_ids)[0])
+        item = item_check.select().first()
+        item_check.update(
+            num_of_wins = item.num_of_wins - arith
+            )
+    else:
+        brawl_check.delete()
+    
+    user_brawl_check.delete()
+    
+    return "ok"
 
 
 
