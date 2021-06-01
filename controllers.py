@@ -71,16 +71,17 @@ def user():
 @action('load_user_brawls')
 @action.uses(db, auth)
 def load_user_brawls():
-    rows = db(db.user_brawl.created_by == get_user_email()).select()
+    rows = db(db.user_brawl.created_by == get_user_email()).select(db.user_brawl.ALL, orderby=~db.user_brawl.creation_date)
     results = []
     for index, row in enumerate(rows):
         result = {}
         result["id"] = row.id
         result["public"] = row.public
+        result["names"] = []
         for _index, _id in enumerate(row.placement_order_ids):
             item = db(db.item.id == _id).select().first()
             name = db(db.item_name.id == item.item_name_id).select().first()
-            result[str(_index)] = name.item_str
+            result["names"].append(name.item_str)
         results.append(result)
         
     return dict(
@@ -221,6 +222,8 @@ def submit():
                 players.append(itemname.item_str)
                 item_placement.append(item["id"])
             
+            _user_brawl = 0
+            
             if final_brawl_id == 0:
                 for item in items:
                     item_name_check = db(db.item_name.id == item["item_name_id"])
@@ -229,7 +232,7 @@ def submit():
                         num_of_uses = itemname.num_of_uses + 1
                         )
                 
-                db.user_brawl.insert(
+                _user_brawl = db.user_brawl.insert(
                     brawl_id = brawl_id,
                     placement_order_ids = item_placement,
                     public = publix
@@ -251,13 +254,13 @@ def submit():
                         num_of_public = _brawl.num_of_public - _user_brawl.public,
                         num_of_plays = _brawl.num_of_plays - 1
                         )
-                        
+                    _user_brawl = _user_brawl.id
                     user_brawl_check.update(
                         placement_order_ids = item_placement,
                         public = publix
                         )
                 else:
-                    db.user_brawl.insert(
+                    _user_brawl = db.user_brawl.insert(
                         brawl_id = brawl_id,
                         placement_order_ids = item_placement,
                         public = publix
@@ -278,7 +281,9 @@ def submit():
                 #print("num_of_wins: " + str(_item.num_of_wins + pub))
     else:
         random.shuffle(players)
-    return dict(players=players)
+        brawl_id = 0
+        publix = False
+    return dict(players=players, user_brawl_id=_user_brawl, publix=publix)
 
 
 

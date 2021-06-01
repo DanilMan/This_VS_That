@@ -84,6 +84,31 @@
                 </div>
             </div>
         </section>
+        
+        <div v-for="result in results">
+            <div v-if="result && ('_idx' in result)">
+                <section class="hero has-background-primary-dark is-small mb-3">
+                    <div class="hero-body pt-4 pb-1">
+                        <nav class="level is-mobile">
+                            <div v-for="(name, index) in result['names']">
+                                <div v-if="name != ''">
+                                    <div class="level-item has-text-centered">
+                                        <div>
+                                            <p class="heading has-text-black-bis is-size-3 has-text-weight-medium">{{name}}</p>
+                                            <p class="title has-text-black-bis has-text-weight-bold">{{(index+1)}}st</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </nav>
+                    </div>
+                </section>
+            </div>
+        </div>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered">
+            </div>
+        </nav>
     </div>
 </div>
 

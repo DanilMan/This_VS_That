@@ -19,7 +19,11 @@ let init = (app) => {
     app.enumerate = (a) => {
         // This adds an _idx field to each element of the array.
         let k = 0;
-        a.map((e) => {e._idx = k++;});
+        a.map((e) => {
+            if(e){
+                e._idx = k++;
+            }
+            });
         return a;
     };
     
@@ -32,6 +36,11 @@ let init = (app) => {
             }).then(function (response) {
                 app.vue.players = response.data.players;
                 app.vue.publix = false;
+                app.vue.results.unshift({
+                    id: response.data.user_brawl_id,
+                    public: response.data.publix,
+                    names: (response.data.players).slice(),
+                    });
             });
         }
     };
@@ -42,6 +51,17 @@ let init = (app) => {
     
     app.set_brawl_mode = function () {
         app.vue.brawl_mode = !app.vue.brawl_mode;
+        if(app.vue.brawl_mode){
+            if(app.vue.results.length > 0){
+                new_result_id = (app.vue.results)[0].id;
+            }
+            for(i = 1; i < app.vue.results.length; i++){
+                if(((app.vue.results)[i]) && ((app.vue.results)[i].id == new_result_id)){
+                    (app.vue.results)[i] = undefined;
+                }
+            }
+            app.enumerate(app.vue.results);
+        }
     };
     
     app.clear_players = function () {
