@@ -39,6 +39,7 @@ let init = (app) => {
     
     app.submit = function () {
         if(app.vue.players[1] !== ""){
+            app.set_brawl_mode();
             axios.post(submit_url,
             {
                 players: app.vue.players,

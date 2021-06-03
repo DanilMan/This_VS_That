@@ -7,153 +7,167 @@
 </style>
 
 <div class="section" id="vue-target" v-cloak>
-    <nav class="level mb-6">
-        <div class="level-item has-text-centered">
-            <div class="control block">
-                <input class="input has-text-weight-bold has-text-black-bis has-background-link-dark is-link is-light" type="text" placeholder="Search this, that, etc." v-model="query" @keyup="search" />
-            </div>
-            <!-- <p class="control">
-                <button class="button">
-                    Search
-                </button>
-            </p> -->
-        </div>
-    </nav>
-    
-    <div>
-        <section class="hero has-background-primary-dark is-small mb-3">
-            <div class="hero-body pt-4 pb-1">
-                <div v-if="brawl_mode">
-                    <nav class="level is-mobile my-0">
-                        <div v-for="i in 4">
-                            <div class="level-item has-text-centered mt-1">
-                                <div v-if="(i===1) || (players[i-2] !== '')">
-                                    <input class="input has-text-weight-bold has-text-black-bis has-background-grey-lighter is-link is-light" type="text" :placeholder="'Player ' + i" v-model="players[i-1]" />
-                                </div>
-                                <div v-else>
-                                    {{players[i-1] = ''}}
-                                </div>
-                            </div>
-                        </div>
-                    </nav>
-                    <nav class="level is-mobile my-0">
-                        <div v-for="i in 4">
-                            <div class="level-item has-text-centered mt-1">
-                                <div v-if="players[i+2] !== ''">
-                                    <input class="input has-text-weight-bold has-text-black-bis has-background-grey-lighter is-link is-light" type="text" :placeholder="'Player ' + (i+4)" v-model="players[i+3]" />
-                                </div>
-                                <div v-else>
-                                    {{players[i+3] = ''}}
-                                </div>
-                            </div>
-                        </div>
-                    </nav>
-                    <nav class="level is-mobile my-2">
-                        <span class="level-left has-text-centered">
-                            <h3 class="subtitle has-text-black-bis is-3 has-text-weight-semibold">START A BRAWL</h3>
-                        </span>
-                        <div class="level-right">
-                            <div class="buttons">
-                                [[if _user:]]
-                                    <button v-if="publix" class="button is-light has-text-black-bis" @click="set_publix_mode">
-                                        <i class="fa fa-unlock"></i><p>&nbsp;</p>
-                                        <h6 class="subtitle has-text-black-bis is-7 has-text-weight-semibold">PUBLIC</h6>
-                                    </button>
-                                    <button v-else class="button is-black has-text-grey" @click="set_publix_mode">
-                                        <i class="fa fa-lock"></i><p>&nbsp;</p>
-                                        <h6 class="subtitle has-text-grey is-7 has-text-weight-semibold">PRIVATE</h6>
-                                    </button>
-                                [[pass]]
-                                <!--<button class="button is-danger has-background-danger-dark" @click="clear_players">
-                                    <h6 class="subtitle has-text-grey-darker is-7 has-text-weight-bold">CLEAR</h6>
-                                </button>-->
-                                <button class="button is-primary">
-                                    <h6 class="subtitle has-text-black-bis is-5 has-text-weight-bold" @click="set_brawl_mode() + submit()">GO</h6>
-                                </button>
-                            </div>
-                        </div>
-                    </nav>
+    <div class="container is-max-widescreen">
+        <nav class="level mb-6">
+            <div class="level-item has-text-centered">
+                <div class="control block">
+                    <input class="input has-text-weight-bold has-text-black-bis has-background-link-dark is-link is-light" type="text" placeholder="Search this, that, etc." v-model="query" @keyup="search" />
                 </div>
-                <div v-else>
-                    <nav class="level is-mobile">
-                        <div class="level-left"></div>
-                        <div v-for="(name, index) in players">
-                            <div v-if="name != ''">
-                                <div class="level-item has-text-centered mx-1">
-                                    <div v-if="index == 0">
-                                        <p class="heading has-text-black is-size-3 has-text-weight-medium">{{name}}</p>
-                                        <p class="title has-text-black has-text-weight-bold"><span>{{(index+1)}}</span><span v-if="(index+1) == 1">st</span><span v-else-if="(index+1) == 2">nd</span><span v-else-if="(index+1) == 3">rd</span><span v-else>th</span></p>
+                <!-- <p class="control">
+                    <button class="button">
+                        Search
+                    </button>
+                </p> -->
+            </div>
+        </nav>
+        
+        <div>
+            <section class="hero has-background-primary-dark is-small mb-3">
+                <div class="hero-body pt-4 pb-1">
+                    <div v-if="brawl_mode">
+                        <nav class="level is-mobile my-0">
+                            <div v-for="i in 4">
+                                <div class="level-item has-text-centered mt-1">
+                                    <div v-if="(i===1) || (players[i-2] !== '')">
+                                        <input class="input has-text-weight-bold has-text-black-bis has-background-grey-lighter is-link is-light" type="text" :placeholder="'Player ' + i" v-model="players[i-1]" />
                                     </div>
                                     <div v-else>
-                                        <p class="heading has-text-black-ter is-size-3 has-text-weight-medium">{{name}}</p>
-                                        <p class="title has-text-black-ter has-text-weight-bold"><span>{{(index+1)}}</span><span v-if="(index+1) == 1">st</span><span v-else-if="(index+1) == 2">nd</span><span v-else-if="(index+1) == 3">rd</span><span v-else>th</span></p>
+                                        {{players[i-1] = ''}}
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="level-right"></div>
-                    </nav>
-                    <nav class="level is-mobile">
-                        <div class="level-item has-text-centered">
-                            <button class="button is-primary has-text-centered">
-                                <h6 class="subtitle has-text-black-bis is-5 has-text-weight-bold" @click="clear_players() + set_brawl_mode()">NEW BRAWL</h6>
-                            </button>
-                        </div>
-                    </nav>
-                </div>
-            </div>
-        </section>
-    </div>
-    
-    <div v-if="!Array.isArray(results) || !results.length">
-        <h2 class="subtitle has-text-link-dark is-2 has-text-centered has-text-weight-semibold my-6">
-            Top 10 Brawls
-        </h2>
-        <div v-for="brawl in brawls">
-            <section class="hero  has-background-link-dark is-small mb-3">
-                <div class="hero-body">
-                    <nav class="level is-mobile">
-                        <div class="level-left">
-                            <div class="level-item">
-                                <h3 class="title is-3 has-text-black-bis">
-                                    # {{brawl.count}}
-                                </h3>
-                            </div>
-                        </div>
-                        <div v-for="(name, index) in brawl._item_name">
-                            <div class="level-item has-text-centered mx-1">
-                                <div>
-                                    <p class="heading has-text-black-bis is-size-3 has-text-weight-medium">{{name}}</p>
-                                    <p class="title has-text-black-bis has-text-weight-bold">{{brawl._num_of_wins[index]}}</p>
+                        </nav>
+                        <nav class="level is-mobile my-0">
+                            <div v-for="i in 4">
+                                <div class="level-item has-text-centered mt-1">
+                                    <div v-if="players[i+2] !== ''">
+                                        <input class="input has-text-weight-bold has-text-black-bis has-background-grey-lighter is-link is-light" type="text" :placeholder="'Player ' + (i+4)" v-model="players[i+3]" />
+                                    </div>
+                                    <div v-else>
+                                        {{players[i+3] = ''}}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="level-right"></div>
-                    </nav>
+                        </nav>
+                        <nav class="level is-mobile my-2">
+                            <span class="level-left has-text-centered">
+                                <h3 class="subtitle has-text-black-bis is-3 has-text-weight-semibold is-size-4-mobile">START A BRAWL</h3>
+                            </span>
+                            <div class="level-right">
+                                <div class="buttons">
+                                    [[if _user:]]
+                                        <button v-if="publix" class="button is-light has-text-black-bis" @click="set_publix_mode">
+                                            <i class="fa fa-unlock"></i><p>&nbsp;</p>
+                                            <h6 class="subtitle has-text-black-bis is-7 has-text-weight-semibold">PUBLIC</h6>
+                                        </button>
+                                        <button v-else class="button is-black has-text-grey" @click="set_publix_mode">
+                                            <i class="fa fa-lock"></i><p>&nbsp;</p>
+                                            <h6 class="subtitle has-text-grey is-7 has-text-weight-semibold">PRIVATE</h6>
+                                        </button>
+                                    [[pass]]
+                                    <!--<button class="button is-danger has-background-danger-dark" @click="clear_players">
+                                        <h6 class="subtitle has-text-grey-darker is-7 has-text-weight-bold">CLEAR</h6>
+                                    </button>-->
+                                    <button class="button is-primary">
+                                        <h6 class="subtitle has-text-black-bis is-5 has-text-weight-bold" @click="submit">GO</h6>
+                                    </button>
+                                </div>
+                            </div>
+                        </nav>
+                    </div>
+                    <div v-else>
+                        <nav class="level is-mobile">
+                            <div class="level-left"></div>
+                            <div v-for="(name, index) in players">
+                                <div v-if="name != ''">
+                                    <div class="level-item has-text-centered mx-1">
+                                        <div v-if="index == 0">
+                                            <p class="heading has-text-black is-size-3 has-text-weight-medium">{{name}}</p>
+                                            <p class="title has-text-black has-text-weight-bold"><span>{{(index+1)}}</span><span v-if="(index+1) == 1">st</span><span v-else-if="(index+1) == 2">nd</span><span v-else-if="(index+1) == 3">rd</span><span v-else>th</span></p>
+                                        </div>
+                                        <div v-else>
+                                            <p class="heading has-text-black-ter is-size-3 has-text-weight-medium">{{name}}</p>
+                                            <p class="title has-text-black-ter has-text-weight-bold"><span>{{(index+1)}}</span><span v-if="(index+1) == 1">st</span><span v-else-if="(index+1) == 2">nd</span><span v-else-if="(index+1) == 3">rd</span><span v-else>th</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="level-right"></div>
+                        </nav>
+                        <nav class="level is-mobile">
+                            <div class="level-item has-text-centered">
+                                <button class="button is-primary has-text-centered">
+                                    <h6 class="subtitle has-text-black-bis is-5 has-text-weight-bold" @click="clear_players() + set_brawl_mode()">NEW BRAWL</h6>
+                                </button>
+                            </div>
+                        </nav>
+                    </div>
                 </div>
             </section>
         </div>
-    </div>
-    
-    <div v-else>
-        <h2 class="subtitle has-text-link-dark is-2 has-text-centered has-text-weight-semibold my-6">Results</h2>
-        <div v-for="r in results">
-            <section class="hero has-background-link-dark is-small mb-3">
-                <div class="hero-body">
-                    <nav class="level is-mobile">
-                        <div class="level-left"></div>
-                        <div v-for="(name, index) in r._item_name">
-                            <div class="level-item has-text-centered mx-1">
-                                <div>
-                                    <p class="heading has-text-black-bis is-size-3 has-text-weight-medium">{{name}}</p>
-                                    <p class="title has-text-black-bis has-text-weight-bold">{{r._num_of_wins[index]}}</p>
+        
+        <div v-if="!Array.isArray(results) || !results.length">
+            <h2 class="subtitle has-text-link-dark is-2 has-text-centered has-text-weight-semibold my-6">
+                Top 10 Brawls
+            </h2>
+            <div v-for="brawl in brawls">
+                <section class="hero  has-background-link-dark is-small mb-3">
+                    <div class="hero-body">
+                        <nav class="level is-mobile">
+                            <div class="level-left">
+                                <div class="level-item">
+                                    <h3 class="title is-3 has-text-black-bis has-text-weight-bold is-size-1-fullhd is-size-2-widescreen is-size-4-touch is-size-4-mobile">
+                                        {{brawl.count}}
+                                    </h3>
                                 </div>
                             </div>
-                        </div>
-                        <div class="level-right"></div>
-                    </nav>
-                </div>
-            </section>
+                            <div v-for="(name, index) in brawl._item_name">
+                                <div class="level-item has-text-centered mx-1">
+                                    <div>
+                                        <p class="heading has-text-black-bis is-size-5 has-text-weight-medium is-size-3-fullhd is-size-4-widescreen is-size-6-touch is-size-6-mobile">{{name}}</p>
+                                        <p>
+                                            <span class="title has-text-black-bis is-size-5 has-text-weight-bold is-size-2-fullhd is-size-3-widescreen is-size-6-touch is-size-6-mobile">{{brawl._num_of_wins[index].toLocaleString()}}</span>
+                                            <span class="title has-text-black-bis is-size-6 has-text-weight-semibold is-size-5-fullhd is-size-5-widescreen is-size-7-touch is-size-7-mobile">
+                                                <span v-if="brawl._num_of_wins[index] == 1">win</span>
+                                                <span v-else>wins</span>
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="level-right"></div>
+                        </nav>
+                    </div>
+                </section>
+            </div>
+        </div>
+        
+        <div v-else>
+            <h2 class="subtitle has-text-link-dark is-2 has-text-centered has-text-weight-semibold my-6">Results</h2>
+            <div v-for="r in results">
+                <section class="hero has-background-link-dark is-small mb-3">
+                    <div class="hero-body">
+                        <nav class="level is-mobile">
+                            <div class="level-left"></div>
+                            <div v-for="(name, index) in r._item_name">
+                                <div class="level-item has-text-centered mx-1">
+                                    <div>
+                                        <p class="heading has-text-black-bis is-size-5 has-text-weight-medium is-size-3-fullhd is-size-4-widescreen is-size-6-touch is-size-6-mobile">{{name}}</p>
+                                        <p>
+                                            <span class="title has-text-black-bis is-size-5 has-text-weight-bold is-size-2-fullhd is-size-3-widescreen is-size-6-touch is-size-6-mobile">{{r._num_of_wins[index]}}</span>
+                                            <span class="title has-text-black-bis is-size-6 has-text-weight-semibold is-size-5-fullhd is-size-5-widescreen is-size-7-touch is-size-7-mobile">
+                                                <span v-if="r._num_of_wins[index] == 1">win</span>
+                                                <span v-else>wins</span>
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="level-right"></div>
+                        </nav>
+                    </div>
+                </section>
+            </div>
         </div>
     </div>
 </div>
