@@ -62,10 +62,17 @@ def index():
 @action.uses(db, auth, 'user.html')
 def user():
     curr_user = get_user()
+    print(curr_user)
+    if not curr_user:
+        redirect(URL('index'))
+    _user = db(db.auth_user.id == curr_user).select().first()
+    user_name = _user.first_name + " " + _user.last_name
     return dict(
         curr_user=curr_user,
+        user_name=user_name,
         submit_url = URL('submit', signer=url_signer),
         load_user_brawls_url = URL('load_user_brawls', signer=url_signer),
+        rematch_url = URL('rematch', signer=url_signer),
         set_public_url = URL('set_public', signer=url_signer),
         _delete_url = URL('_delete', signer=url_signer),
         )
@@ -98,7 +105,11 @@ def search():
     rows = []
     
     q = request.params.get("q")
-    qs = q.split()
+    qs = q.split(",")
+    
+    qs = [i.lower() for i in qs]
+    
+    print(qs)
     
     _query = False
     for word in qs:
@@ -138,7 +149,8 @@ def search():
 def submit():
     players = request.json.get('players')
     players = list(filter(None, players))
-    print(players)
+    players = [i.lower() for i in players]
+    #print(players)
     
     if(get_user()):
         publix = request.json.get('publix')
@@ -165,13 +177,13 @@ def submit():
             items = db(_query).select(db.item.ALL, orderby=db.item.brawl_id)
             if items:
                 leng = len(players)
-                print(leng)
+                #print(leng)
                 counter = 1
                 brawl_ids = []
                 if leng > 0:
                     prev_brawl_id = items[0].brawl_id
                 for item in items:
-                    print(item)
+                    #print(item)
                     if prev_brawl_id != item.brawl_id:
                         counter = 1
                     if leng == counter:
@@ -180,13 +192,13 @@ def submit():
                     counter += 1
                 for brawl_id in brawl_ids:
                     brawl = db(db.item.brawl_id == brawl_id).select()
-                    print(brawl_id)
+                    #print(brawl_id)
                     if len(brawl) == len(players):
-                        print("brawl length: " + str(len(brawl)))
+                        #print("brawl length: " + str(len(brawl)))
                         final_brawl_id = brawl_id
                         break
             
-            print("player_name_ids: " + str(player_name_ids))
+            #print("player_name_ids: " + str(player_name_ids))
             
             if final_brawl_id == 0:
                 brawl_id = db.brawl.insert(
@@ -206,8 +218,8 @@ def submit():
                     num_of_plays = _brawl.num_of_plays + 1
                     )
                     
-                print("num_of_public: " + str(_brawl.num_of_public + pub))
-                print("num_of_plays: " + str(_brawl.num_of_plays + 1))
+                #print("num_of_public: " + str(_brawl.num_of_public + pub))
+                #print("num_of_plays: " + str(_brawl.num_of_plays + 1))
                 
                 brawl_id = final_brawl_id
             
@@ -286,6 +298,46 @@ def submit():
         brawl_id = 0
         publix = False
     return dict(players=players, user_brawl_id=_user_brawl, publix=publix)
+
+@action('rematch', method="POST")
+@action.uses(db, session, url_signer.verify())
+def rematch():
+    element = request.json.get('element')
+    
+    user_brawl_check = db(db.user_brawl.id == element["id"])
+    user_brawl = user_brawl_check.select().first()
+    
+    items = db(db.item.brawl_id == user_brawl.brawl_id).select().as_list()
+    
+    random.shuffle(items)
+    
+    players = []
+    placement = []
+    for item in items:
+        item_name = db(db.item_name.id == item["item_name_id"]).select().first()
+        players.append(item_name.item_str)
+        placement.append(item["id"])
+    
+    if (element["public"]) and ((user_brawl.placement_order_ids)[0] != (items[0])["id"]):
+        orig_item_check = db(db.item.id == (user_brawl.placement_order_ids)[0])
+        orig_item = orig_item_check.select().first()
+        
+        orig_item_check.update(
+            num_of_wins = orig_item.num_of_wins - 1
+            )
+        
+        item_check = db(db.item.id == (items[0])["id"])
+        item = item_check.select().first()
+        
+        item_check.update(
+            num_of_wins = item.num_of_wins + 1
+            )
+    
+    user_brawl_check.update(
+        placement_order_ids = placement,
+        public = element["public"]
+        )
+    return dict(players=players)
 
 @action('set_public', method="POST")
 @action.uses(db, session, url_signer.verify())

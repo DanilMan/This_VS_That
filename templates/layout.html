@@ -17,12 +17,11 @@
             <div class="buttons">
                 <a class="button is-link is-dark has-text-white-ter" href="[[=URL('index')]]"><icon class="fa fa-home"></icon></a>
                 [[if globals().get('user'):]]
-                    <a class="button has-background-grey-lighter" href="[[=URL('user')]]"><icon class="fa fa-user"></icon></a>
+                    <a class="button is-primary has-background-primary-dark has-text-black-ter" href="[[=URL('user')]]"><icon class="fa fa-user"></icon></a>
                 [[pass]]
             </div>
           <!-- <img class="logo" width="150" src="images/site_icon.png"> -->
         </div>
-
 
         <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="the-navbar-menu"
            onclick="this.classList.toggle('is-active');document.getElementById(this.dataset.target).classList.toggle('is-active');">

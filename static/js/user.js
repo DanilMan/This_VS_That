@@ -69,6 +69,16 @@ let init = (app) => {
         }
     };
     
+    app.rematch = function (index) {
+        //app.set_public(index, false); always increases or decreases without logic
+        axios.post(rematch_url,
+            {
+                element: app.vue.results[index]
+            }).then( function (response) {
+                app.vue.results[index].names = response.data.players;
+            });
+    };
+    
     app.set_public = function (index, mode) {
         axios.post(set_public_url,
             {
@@ -100,6 +110,7 @@ let init = (app) => {
         set_publix_mode: app.set_publix_mode,
         set_public_mode: app.set_public_mode,
         clear_players: app.clear_players,
+        rematch: app.rematch,
         set_public: app.set_public,
         _delete: app._delete,
     };
