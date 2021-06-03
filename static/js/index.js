@@ -15,6 +15,7 @@ let init = (app) => {
         brawl_mode: true,
         players: [],
         results: [],
+        brawls: [],
     };
 
     app.enumerate = (a) => {
@@ -84,6 +85,12 @@ let init = (app) => {
     app.init = () => {
         // Put here any initialization code.
         // Typically this is a server GET call to load the data.
+        axios.get(load_brawls_url)
+            .then((result) => {
+                let brawls = result.data.brawls;
+                app.enumerate(brawls);
+                app.vue.brawls = brawls;
+            });
         for(i = 0; i < 8; i++){
             app.vue.players.push("");
         }

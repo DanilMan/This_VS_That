@@ -54,15 +54,35 @@ def index():
     return dict(
         rows=rows,
         _user=_user,
+        load_brawls_url = URL('load_brawls', signer=url_signer),
         search_url = URL('search', signer=url_signer),
         submit_url = URL('submit', signer=url_signer),
         )
+
+@action('load_brawls')
+@action.uses(db, auth)
+def load_brawls():
+    _user = get_user()
+    brawls = db(db.brawl.num_of_public != 0).select(db.brawl.ALL, orderby=~db.brawl.num_of_public, limitby=(0, 10)).as_list()
+    counter = 0
+    for brawl in brawls:
+        counter = counter + 1
+        brawl["count"] = counter
+        items = db(db.item.brawl_id == brawl["id"]).select(db.item.ALL, orderby=~db.item.num_of_wins)
+        wins_list = []
+        name_list = []
+        for _item in items:
+            wins_list.append(_item.num_of_wins)
+            name_list.append((db.item_name[_item.item_name_id]).item_str)
+        brawl["_num_of_wins"] = wins_list
+        brawl["_item_name"] = name_list
+    return dict(brawls=brawls)
+
 
 @action('user')
 @action.uses(db, auth, 'user.html')
 def user():
     curr_user = get_user()
-    print(curr_user)
     if not curr_user:
         redirect(URL('index'))
     _user = db(db.auth_user.id == curr_user).select().first()

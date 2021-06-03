@@ -76,16 +76,22 @@
                 </div>
                 <div v-else>
                     <nav class="level is-mobile">
+                        <div class="level-left"></div>
                         <div v-for="(name, index) in players">
                             <div v-if="name != ''">
-                                <div class="level-item has-text-centered">
-                                    <div>
-                                        <p class="heading has-text-black-bis is-size-3 has-text-weight-medium">{{name}}</p>
-                                        <p class="title has-text-black-bis has-text-weight-bold">{{(index+1)}}st</p>
+                                <div class="level-item has-text-centered mx-1">
+                                    <div v-if="index == 0">
+                                        <p class="heading has-text-black is-size-3 has-text-weight-medium">{{name}}</p>
+                                        <p class="title has-text-black has-text-weight-bold"><span>{{(index+1)}}</span><span v-if="(index+1) == 1">st</span><span v-else-if="(index+1) == 2">nd</span><span v-else-if="(index+1) == 3">rd</span><span v-else>th</span></p>
+                                    </div>
+                                    <div v-else>
+                                        <p class="heading has-text-black-ter is-size-3 has-text-weight-medium">{{name}}</p>
+                                        <p class="title has-text-black-ter has-text-weight-bold"><span>{{(index+1)}}</span><span v-if="(index+1) == 1">st</span><span v-else-if="(index+1) == 2">nd</span><span v-else-if="(index+1) == 3">rd</span><span v-else>th</span></p>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        <div class="level-right"></div>
                     </nav>
                     <nav class="level is-mobile">
                         <div class="level-item has-text-centered">
@@ -103,29 +109,30 @@
         <h2 class="subtitle has-text-link-dark is-2 has-text-centered has-text-weight-semibold my-6">
             Top 10 Brawls
         </h2>
-        [[for row in rows:]]
-        <section class="hero  has-background-link-dark is-small mb-3">
-            <div class="hero-body">
-                <nav class="level is-mobile">
-                    <div class="level-left">
-                        <div class="level-item">
-                            <h3 class="title is-3 has-text-black-bis">
-                                # [[=row["count"] ]]
-                            </h3>
+        <div v-for="brawl in brawls">
+            <section class="hero  has-background-link-dark is-small mb-3">
+                <div class="hero-body">
+                    <nav class="level is-mobile">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <h3 class="title is-3 has-text-black-bis">
+                                    # {{brawl.count}}
+                                </h3>
+                            </div>
                         </div>
-                    </div>
-                    [[for name, wins in zip(row["_item_name"], row["_num_of_wins"]): ]]
-                    <div class="level-item has-text-centered">
-                        <div>
-                            <p class="heading has-text-black-bis is-size-3 has-text-weight-medium">[[=name ]]</p>
-                            <p class="title has-text-black-bis has-text-weight-bold">[[=wins ]]</p>
+                        <div v-for="(name, index) in brawl._item_name">
+                            <div class="level-item has-text-centered mx-1">
+                                <div>
+                                    <p class="heading has-text-black-bis is-size-3 has-text-weight-medium">{{name}}</p>
+                                    <p class="title has-text-black-bis has-text-weight-bold">{{brawl._num_of_wins[index]}}</p>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    [[pass]]
-                </nav>
-            </div>
-        </section>
-        [[pass]]
+                        <div class="level-right"></div>
+                    </nav>
+                </div>
+            </section>
+        </div>
     </div>
     
     <div v-else>
@@ -134,14 +141,16 @@
             <section class="hero has-background-link-dark is-small mb-3">
                 <div class="hero-body">
                     <nav class="level is-mobile">
+                        <div class="level-left"></div>
                         <div v-for="(name, index) in r._item_name">
-                            <div class="level-item has-text-centered">
+                            <div class="level-item has-text-centered mx-1">
                                 <div>
                                     <p class="heading has-text-black-bis is-size-3 has-text-weight-medium">{{name}}</p>
                                     <p class="title has-text-black-bis has-text-weight-bold">{{r._num_of_wins[index]}}</p>
                                 </div>
                             </div>
                         </div>
+                        <div class="level-right"></div>
                     </nav>
                 </div>
             </section>
@@ -152,6 +161,7 @@
 [[block page_scripts]]
 <!-- Loads the index-specific js for Vue -->
 <script>
+  let load_brawls_url = "[[=XML(load_brawls_url)]]";
   let search_url = "[[=XML(search_url)]]";
   let submit_url = "[[=XML(submit_url)]]";
 </script>
