@@ -64,6 +64,23 @@ let init = (app) => {
             app.vue.players[i] = "";
         }
     };
+    
+    app.copy_brawl = function (index, b_data) {
+        if(b_data === 0){
+            brawl = app.vue.brawls[index];
+        }else{
+            brawl = app.vue.results[index];
+        }
+        for(i = 0; i < app.vue.players.length; i++){
+            if(i < brawl._item_name.length){
+                app.vue.players[i] = brawl._item_name[i];
+                console.log(app.vue.players[i]);
+            }else{
+                app.vue.players[i] = "";
+            }
+            
+        }
+    };
 
     // This contains all the methods.
     app.methods = {
@@ -73,6 +90,7 @@ let init = (app) => {
         set_publix_mode: app.set_publix_mode,
         set_brawl_mode: app.set_brawl_mode,
         clear_players: app.clear_players,
+        copy_brawl: app.copy_brawl,
     };
 
     // This creates the Vue instance.

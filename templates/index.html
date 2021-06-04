@@ -26,7 +26,7 @@
                 <div class="hero-body pt-4 pb-1">
                     <div v-if="brawl_mode">
                         <nav class="level is-mobile my-0">
-                            <div v-for="i in 4">
+                            <div v-for="i in 4"> <!--:key="players[(i-1)]"-->
                                 <div class="level-item has-text-centered mt-1">
                                     <div v-if="(i===1) || (players[i-2] !== '')">
                                         <input class="input has-text-weight-bold has-text-black-bis has-background-grey-lighter is-link is-light" type="text" :placeholder="'Player ' + i" v-model="players[i-1]" />
@@ -108,9 +108,9 @@
         
         <div v-if="!Array.isArray(results) || !results.length">
             <h2 class="subtitle has-text-link-dark is-2 has-text-centered has-text-weight-semibold my-6">
-                Top 10 Brawls
+                TOP 10 BRAWLS
             </h2>
-            <div v-for="brawl in brawls">
+            <div v-for="(brawl, bindex) in brawls">
                 <section class="hero  has-background-link-dark is-small mb-3">
                     <div class="hero-body">
                         <nav class="level is-mobile">
@@ -124,9 +124,9 @@
                             <div v-for="(name, index) in brawl._item_name">
                                 <div class="level-item has-text-centered mx-1">
                                     <div>
-                                        <p class="heading has-text-black-bis is-size-5 has-text-weight-medium is-size-3-fullhd is-size-4-widescreen is-size-6-touch is-size-6-mobile">{{name}}</p>
+                                        <p class="heading has-text-black-bis is-size-4 has-text-weight-medium is-size-3-fullhd is-size-3-widescreen is-size-6-touch is-size-6-mobile">{{name}}</p>
                                         <p>
-                                            <span class="title has-text-black-bis is-size-5 has-text-weight-bold is-size-2-fullhd is-size-3-widescreen is-size-6-touch is-size-6-mobile">{{brawl._num_of_wins[index].toLocaleString()}}</span>
+                                            <span class="title has-text-black-bis is-size-4 has-text-weight-bold is-size-2-fullhd is-size-2-widescreen is-size-6-touch is-size-6-mobile">{{brawl._num_of_wins[index].toLocaleString()}}</span>
                                             <span class="title has-text-black-bis is-size-6 has-text-weight-semibold is-size-5-fullhd is-size-5-widescreen is-size-7-touch is-size-7-mobile">
                                                 <span v-if="brawl._num_of_wins[index] == 1">win</span>
                                                 <span v-else>wins</span>
@@ -137,13 +137,22 @@
                             </div>
                             <div class="level-right"></div>
                         </nav>
+                        <nav class="level is-mobile ">
+                            <div class="level-left">
+                                <div class="level-item has-text-centered">
+                                    <button class="button is-warning has-text-centered">
+                                        <h6 class="subtitle has-text-black-bis is-7 has-text-weight-bold" @click="copy_brawl(bindex, 0)">COPY BRAWL</h6>
+                                    </button>
+                                </div>
+                            </div>
+                        </nav>
                     </div>
                 </section>
             </div>
         </div>
         
         <div v-else>
-            <h2 class="subtitle has-text-link-dark is-2 has-text-centered has-text-weight-semibold my-6">Results</h2>
+            <h2 class="subtitle has-text-link-dark is-2 has-text-centered has-text-weight-semibold my-6">RESULTS</h2>
             <div v-for="r in results">
                 <section class="hero has-background-link-dark is-small mb-3">
                     <div class="hero-body">
@@ -152,9 +161,9 @@
                             <div v-for="(name, index) in r._item_name">
                                 <div class="level-item has-text-centered mx-1">
                                     <div>
-                                        <p class="heading has-text-black-bis is-size-5 has-text-weight-medium is-size-3-fullhd is-size-4-widescreen is-size-6-touch is-size-6-mobile">{{name}}</p>
+                                        <p class="heading has-text-black-bis is-size-4 has-text-weight-medium is-size-3-fullhd is-size-3-widescreen is-size-6-touch is-size-6-mobile">{{name}}</p>
                                         <p>
-                                            <span class="title has-text-black-bis is-size-5 has-text-weight-bold is-size-2-fullhd is-size-3-widescreen is-size-6-touch is-size-6-mobile">{{r._num_of_wins[index]}}</span>
+                                            <span class="title has-text-black-bis is-size-4 has-text-weight-bold is-size-2-fullhd is-size-2-widescreen is-size-6-touch is-size-6-mobile">{{r._num_of_wins[index]}}</span>
                                             <span class="title has-text-black-bis is-size-6 has-text-weight-semibold is-size-5-fullhd is-size-5-widescreen is-size-7-touch is-size-7-mobile">
                                                 <span v-if="r._num_of_wins[index] == 1">win</span>
                                                 <span v-else>wins</span>
@@ -178,6 +187,7 @@
   let load_brawls_url = "[[=XML(load_brawls_url)]]";
   let search_url = "[[=XML(search_url)]]";
   let submit_url = "[[=XML(submit_url)]]";
+  let copy_brawl_url = "[[=XML(copy_brawl_url)]]";
 </script>
 <script src="js/index.js"></script>
 [[end]]

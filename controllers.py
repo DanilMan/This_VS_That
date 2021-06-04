@@ -57,6 +57,7 @@ def index():
         load_brawls_url = URL('load_brawls', signer=url_signer),
         search_url = URL('search', signer=url_signer),
         submit_url = URL('submit', signer=url_signer),
+        copy_brawl_url = URL('copy_brawl', signer=url_signer),
         )
 
 @action('load_brawls')
@@ -120,16 +121,10 @@ def load_user_brawls():
 @action('search')
 @action.uses(db)
 def search():
-    #qs = list(filter(None, re.split(';|"| \'|,|/|\\ |\s', q)))
-    
     rows = []
     
     q = request.params.get("q")
-    qs = q.split(",")
-    
-    qs = [i.lower() for i in qs]
-    
-    print(qs)
+    qs = [(i.strip()).lower() for i in q.split(",")]
     
     _query = False
     for word in qs:
@@ -169,7 +164,7 @@ def search():
 def submit():
     players = request.json.get('players')
     players = list(filter(None, players))
-    players = [i.lower() for i in players]
+    players = [(i.strip(", ")).lower() for i in players]
     #print(players)
     
     if(get_user()):
