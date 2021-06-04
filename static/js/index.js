@@ -39,14 +39,22 @@ let init = (app) => {
     
     app.submit = function () {
         if(app.vue.players[1] !== ""){
-            app.set_brawl_mode();
+            player_strs = []
+            for(i = 0; i < app.vue.players.length; i++){
+                player_strs.push(app.vue.players[i].str);
+            }
             axios.post(submit_url,
             {
-                players: app.vue.players,
+                players: player_strs,
                 publix: app.vue.publix,
             }).then(function (response) {
-                app.vue.players = response.data.players;
+                new_players = []
+                for(i = 0; i < response.data.players.length; i++){
+                    new_players.push({'id': i, 'str': response.data.players[i]});
+                }
+                app.vue.players = new_players
                 app.vue.publix = false;
+                app.set_brawl_mode();
             });
         }
     };
@@ -60,8 +68,12 @@ let init = (app) => {
     };
     
     app.clear_players = function () {
-        for(i = 0; i < app.vue.players.length; i++){
-            app.vue.players[i] = "";
+        for(i = 0; i < 8; i++){
+            if(i < app.vue.players.length){
+                app.vue.players[i].str = "";
+            }else{
+                app.vue.players.push({'id': i, 'str': ""});
+            }
         }
     };
     
@@ -73,12 +85,10 @@ let init = (app) => {
         }
         for(i = 0; i < app.vue.players.length; i++){
             if(i < brawl._item_name.length){
-                app.vue.players[i] = brawl._item_name[i];
-                console.log(app.vue.players[i]);
+                app.vue.players[i].str = brawl._item_name[i];
             }else{
-                app.vue.players[i] = "";
+                app.vue.players[i].str = "";
             }
-            
         }
     };
 
@@ -111,7 +121,7 @@ let init = (app) => {
                 app.vue.brawls = brawls;
             });
         for(i = 0; i < 8; i++){
-            app.vue.players.push("");
+            app.vue.players.push({'id': i, 'str': ""});
         }
     };
 
