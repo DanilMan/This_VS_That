@@ -58,7 +58,6 @@ let init = (app) => {
                 if(response.data.brawl_id > 0){
                     app.get_updated_brawls();
                 }
-                console.log(response.data.brawl_id);
             });
         }
     };
@@ -94,10 +93,12 @@ let init = (app) => {
                 app.vue.players[i].str = "";
             }
         }
+        if(!app.vue.brawl_mode){
+            app.vue.brawl_mode = true;
+        }
     };
     
     app.get_updated_brawls = function() {
-        console.log("here")
         axios.get(load_brawls_url)
             .then((result) => {
                 let brawls = result.data.brawls;
