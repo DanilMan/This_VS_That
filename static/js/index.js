@@ -32,14 +32,14 @@ let init = (app) => {
                     app.vue.results = result.data.results;
                 });
         } else {
-            app.vue.results = []
+            app.vue.results = [];
         }
         
     };
     
     app.submit = function () {
         if(app.vue.players[1] !== ""){
-            player_strs = []
+            player_strs = [];
             for(i = 0; i < app.vue.players.length; i++){
                 player_strs.push(app.vue.players[i].str);
             }
@@ -48,13 +48,17 @@ let init = (app) => {
                 players: player_strs,
                 publix: app.vue.publix,
             }).then(function (response) {
-                new_players = []
+                new_players = [];
                 for(i = 0; i < response.data.players.length; i++){
                     new_players.push({'id': i, 'str': response.data.players[i]});
                 }
-                app.vue.players = new_players
+                app.vue.players = new_players;
                 app.vue.publix = false;
                 app.set_brawl_mode();
+                if(response.data.brawl_id > 0){
+                    app.get_updated_brawls();
+                }
+                console.log(response.data.brawl_id);
             });
         }
     };
@@ -91,6 +95,25 @@ let init = (app) => {
             }
         }
     };
+    
+    app.get_updated_brawls = function() {
+        console.log("here")
+        axios.get(load_brawls_url)
+            .then((result) => {
+                let brawls = result.data.brawls;
+                app.enumerate(brawls);
+                app.vue.brawls = brawls;
+            });
+            
+        if (app.vue.query.length > 0) {
+            axios.get(search_url, {params: {q: app.vue.query}})
+                .then(function (result) {
+                    app.vue.results = result.data.results;
+                });
+        } else {
+            app.vue.results = [];
+        }
+    };
 
     // This contains all the methods.
     app.methods = {
@@ -101,6 +124,7 @@ let init = (app) => {
         set_brawl_mode: app.set_brawl_mode,
         clear_players: app.clear_players,
         copy_brawl: app.copy_brawl,
+        get_updated_brawls: app.get_updated_brawls,
     };
 
     // This creates the Vue instance.

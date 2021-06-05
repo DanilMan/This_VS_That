@@ -88,7 +88,7 @@ let init = (app) => {
     };
     
     app._delete = function (index) {
-        let id = app.vue.results[index].id
+        let id = app.vue.results[index].id;
         axios.post(_delete_url,
             {
                 element: app.vue.results[index]

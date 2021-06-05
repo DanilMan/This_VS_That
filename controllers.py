@@ -310,9 +310,10 @@ def submit():
                 #print("num_of_wins: " + str(_item.num_of_wins + pub))
     else:
         random.shuffle(players)
-        brawl_id = 0
+        _user_brawl = 0
         publix = False
-    return dict(players=players, user_brawl_id=_user_brawl, publix=publix)
+        brawl_id = 0
+    return dict(players=players, user_brawl_id=_user_brawl, publix=publix, brawl_id=brawl_id)
 
 @action('rematch', method="POST")
 @action.uses(db, session, url_signer.verify())

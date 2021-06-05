@@ -150,7 +150,7 @@
         
         <div v-else>
             <h2 class="subtitle has-text-link-dark is-2 has-text-centered has-text-weight-semibold my-6">RESULTS</h2>
-            <div v-for="r in results">
+            <div v-for="(r, rindex) in results">
                 <section class="hero has-background-link-dark is-small mb-3">
                     <div class="hero-body">
                         <nav class="level is-mobile">
@@ -170,6 +170,15 @@
                                 </div>
                             </div>
                             <div class="level-right"></div>
+                        </nav>
+                        <nav class="level is-mobile ">
+                            <div class="level-left">
+                                <div class="level-item has-text-centered">
+                                    <button class="button is-warning has-text-centered">
+                                        <h6 class="subtitle has-text-black-bis is-7 has-text-weight-bold" @click="copy_brawl(rindex, 1)">COPY BRAWL</h6>
+                                    </button>
+                                </div>
+                            </div>
                         </nav>
                     </div>
                 </section>
