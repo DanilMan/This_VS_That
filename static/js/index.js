@@ -114,7 +114,7 @@ let init = (app) => {
             });
             
         if (app.vue.query.length > 0) {
-            axios.get(search_url, {params: {q: app.vue.query}})
+            axios.get(search_url, {params: {q: app.vue.query, p: app.vue.results_page}})
                 .then(function (result) {
                     app.vue.results = result.data.results;
                 });

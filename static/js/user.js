@@ -10,6 +10,7 @@ let init = (app) => {
     // This is the Vue data.
     app.data = {
         // Complete as you see fit.
+        results_page: 0,
         publix: false,
         players: [],
         results: [],
@@ -102,6 +103,16 @@ let init = (app) => {
                 }
             });
     };
+    
+    app.load_new_user_brawls = function (page) {
+        app.vue.results_page = app.vue.results_page + page;
+        axios.get(load_user_brawls_url, {params: {p: app.vue.results_page}})
+            .then((result) => {
+                let results = result.data.results;
+                app.enumerate(results);
+                app.vue.results = results;
+                });
+    };
 
     // This contains all the methods.
     app.methods = {
@@ -113,6 +124,7 @@ let init = (app) => {
         rematch: app.rematch,
         set_public: app.set_public,
         _delete: app._delete,
+        load_new_user_brawls: app.load_new_user_brawls,
     };
 
     // This creates the Vue instance.
@@ -126,7 +138,7 @@ let init = (app) => {
     app.init = () => {
         // Put here any initialization code.
         // Typically this is a server GET call to load the data.
-        axios.get(load_user_brawls_url)
+        axios.get(load_user_brawls_url, {params: {p: 0}})
             .then((result) => {
                 let results = result.data.results;
                 app.enumerate(results);

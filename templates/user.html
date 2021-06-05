@@ -60,7 +60,7 @@
                     </nav>
                 </div>
             </section>
-            <div v-for="(result, r_index) in results">
+            <div v-for="(result, r_index) in results.slice(0,10)">
                 <section class="hero has-background-link-dark is-small mb-3">
                     <div class="hero-body pt-4 pb-0">
                         <nav class="level is-mobile">
@@ -100,7 +100,7 @@
                                         <h6 class="subtitle has-text-grey is-7 has-text-weight-semibold">PRIVATE</h6>
                                     </button>
                                     <button class="button  is-danger is-dark">
-                                        <h6 class="subtitle has-text-black-bis is-4" @click="_delete(r_index)">
+                                        <h6 class="subtitle has-text-black-bis is-4" @click="_delete(r_index) + load_new_user_brawls(0)">
                                             <i class="fa fa-trash-o"></i>
                                         </h6>
                                     </button>
@@ -110,6 +110,17 @@
                     </div>
                 </section>
             </div>
+            <nav class="level is-mobile ">
+                <div class="level-item has-text-centered">
+                    <button v-if="results_page > 0" class="button has-background-black-bis mr-1 p-1">
+                        <h1 class="subtitle has-text-grey-lighter is-1 has-text-weight-bold pb-2" @click="load_new_user_brawls(-1)"><i class="fa fa-angle-left"></i></h1>
+                    </button>
+                    <h1 v-if="(results_page > 0) || (results.length == 11)" class="subtitle has-text-grey-lighter is-1 has-text-weight-bold mx-1 pb-1">{{results_page+1}}</h1>
+                    <button v-if="results.length > 10" class="button has-background-black-bis ml-1 p-1">
+                        <h1 class="subtitle has-text-grey-lighter is-1 has-text-weight-bold pb-2" @click="load_new_user_brawls(1)"><i class="fa fa-angle-right"></i></h1>
+                    </button>
+                </div>
+            </nav>
         </div>
     </div>
 </div>

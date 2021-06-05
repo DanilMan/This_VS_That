@@ -101,7 +101,8 @@ def user():
 @action('load_user_brawls')
 @action.uses(db, auth)
 def load_user_brawls():
-    rows = db(db.user_brawl.created_by == get_user_email()).select(db.user_brawl.ALL, orderby=~db.user_brawl.creation_date)
+    page = int(request.params.get("p"))
+    rows = db(db.user_brawl.created_by == get_user_email()).select(db.user_brawl.ALL, orderby=~db.user_brawl.creation_date, limitby=(page * 10, ((page * 10) + 11)))
     results = []
     for index, row in enumerate(rows):
         result = {}

@@ -188,7 +188,7 @@
                     <button v-if="results_page > 0" class="button has-background-black-bis mr-1 p-1">
                         <h1 class="subtitle has-text-grey-lighter is-1 has-text-weight-bold pb-2" @click="search(-1)"><i class="fa fa-angle-left"></i></h1>
                     </button>
-                    <h1 v-if="(results_page > 0) || (results.length == 11)" class="subtitle has-text-grey-lighter is-1 has-text-weight-bold mx-1 pb-1" @click="search">{{results_page+1}}</h1>
+                    <h1 v-if="(results_page > 0) || (results.length == 11)" class="subtitle has-text-grey-lighter is-1 has-text-weight-bold mx-1 pb-1">{{results_page+1}}</h1>
                     <button v-if="results.length == 11" class="button has-background-black-bis ml-1 p-1">
                         <h1 class="subtitle has-text-grey-lighter is-1 has-text-weight-bold pb-2" @click="search(1)"><i class="fa fa-angle-right"></i></h1>
                     </button>
