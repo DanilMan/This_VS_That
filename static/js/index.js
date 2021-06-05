@@ -15,6 +15,7 @@ let init = (app) => {
         query_len: 0,
         publix: false,
         brawl_mode: true,
+        showings: true,
         players: [],
         results: [],
         brawls: [],
@@ -37,6 +38,9 @@ let init = (app) => {
             axios.get(search_url, {params: {q: app.vue.query, p: app.vue.results_page}})
                 .then(function (result) {
                     app.vue.results = result.data.results;
+                    if(page !== 0){
+                        window.scrollTo(0,0);
+                    }
                 });
         } else {
             app.vue.results = [];
@@ -62,9 +66,8 @@ let init = (app) => {
                 app.vue.players = new_players;
                 app.vue.publix = false;
                 app.set_brawl_mode();
-                if(response.data.brawl_id > 0){
-                    app.get_updated_brawls();
-                }
+                app.vue.showings = false;
+                app.slow_show(response.data.brawl_id);
             });
         }
     };
@@ -103,6 +106,7 @@ let init = (app) => {
         if(!app.vue.brawl_mode){
             app.vue.brawl_mode = true;
         }
+        window.scrollTo(0,0);
     };
     
     app.get_updated_brawls = function() {
@@ -122,6 +126,13 @@ let init = (app) => {
             app.vue.results = [];
         }
     };
+    
+    app.slow_show = function (brawl_id) {
+        if(brawl_id > 0){
+            setTimeout(() => app.get_updated_brawls(), 600);
+        }
+        setTimeout(() => app.vue.showings = true, 600);
+    };
 
     // This contains all the methods.
     app.methods = {
@@ -133,6 +144,7 @@ let init = (app) => {
         clear_players: app.clear_players,
         copy_brawl: app.copy_brawl,
         get_updated_brawls: app.get_updated_brawls,
+        slow_show: app.slow_show,
     };
 
     // This creates the Vue instance.

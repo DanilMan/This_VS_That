@@ -36,6 +36,7 @@ let init = (app) => {
                     id: response.data.user_brawl_id,
                     public: response.data.publix,
                     names: (response.data.players).slice(),
+                    showings: false,
                     });
                 if(app.vue.results.length > 0){
                     new_result_id = (app.vue.results)[0].id;
@@ -46,6 +47,7 @@ let init = (app) => {
                     }
                 }
                 app.enumerate(app.vue.results);
+                app.slow_show(app.vue.results[0]);
             });
         }
     };
@@ -77,7 +79,10 @@ let init = (app) => {
                 element: app.vue.results[index]
             }).then( function (response) {
                 app.vue.results[index].names = response.data.players;
+                app.vue.results[index].showings = false;
+                app.slow_show(app.vue.results[index]);
             });
+            
     };
     
     app.set_public = function (index, mode) {
@@ -111,7 +116,14 @@ let init = (app) => {
                 let results = result.data.results;
                 app.enumerate(results);
                 app.vue.results = results;
+                if(page !== 0){
+                    window.scrollTo(0,0);
+                }
                 });
+    };
+    
+    app.slow_show = function (result) {
+        setTimeout(() => result.showings = true, 600);
     };
 
     // This contains all the methods.
@@ -125,6 +137,7 @@ let init = (app) => {
         set_public: app.set_public,
         _delete: app._delete,
         load_new_user_brawls: app.load_new_user_brawls,
+        slow_show: app.slow_show,
     };
 
     // This creates the Vue instance.

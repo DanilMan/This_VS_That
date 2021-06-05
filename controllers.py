@@ -109,6 +109,7 @@ def load_user_brawls():
         result["id"] = row.id
         result["public"] = row.public
         result["names"] = []
+        result["showings"] = True
         for _index, _id in enumerate(row.placement_order_ids):
             item = db(db.item.id == _id).select().first()
             name = db(db.item_name.id == item.item_name_id).select().first()
