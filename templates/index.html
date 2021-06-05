@@ -11,7 +11,7 @@
         <nav class="level mb-6">
             <div class="level-item has-text-centered">
                 <div class="control block">
-                    <input class="input has-text-weight-bold has-text-black-bis has-background-link-dark is-link is-light" type="text" placeholder="Search this, that, etc." v-model="query" @keyup="search" />
+                    <input class="input has-text-weight-bold has-text-black-bis has-background-link-dark is-link is-light" type="text" placeholder="Search this, that, etc." v-model="query" @keyup="search(0)" />
                 </div>
                 <!-- <p class="control">
                     <button class="button">
@@ -150,7 +150,7 @@
         
         <div v-else>
             <h2 class="subtitle has-text-link-dark is-2 has-text-centered has-text-weight-semibold my-6">RESULTS</h2>
-            <div v-for="(r, rindex) in results">
+            <div v-for="(r, rindex) in results.slice(0,10)">
                 <section class="hero has-background-link-dark is-small mb-3">
                     <div class="hero-body">
                         <nav class="level is-mobile">
@@ -183,6 +183,17 @@
                     </div>
                 </section>
             </div>
+            <nav class="level is-mobile ">
+                <div class="level-item has-text-centered">
+                    <button v-if="results_page > 0" class="button has-background-black-bis mr-1 p-1">
+                        <h1 class="subtitle has-text-grey-lighter is-1 has-text-weight-bold pb-2" @click="search(-1)"><i class="fa fa-angle-left"></i></h1>
+                    </button>
+                    <h1 v-if="(results_page > 0) || (results.length == 11)" class="subtitle has-text-grey-lighter is-1 has-text-weight-bold mx-1 pb-1" @click="search">{{results_page+1}}</h1>
+                    <button v-if="results.length == 11" class="button has-background-black-bis ml-1 p-1">
+                        <h1 class="subtitle has-text-grey-lighter is-1 has-text-weight-bold pb-2" @click="search(1)"><i class="fa fa-angle-right"></i></h1>
+                    </button>
+                </div>
+            </nav>
         </div>
     </div>
 </div>

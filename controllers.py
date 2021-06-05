@@ -126,6 +126,8 @@ def search():
     q = request.params.get("q")
     qs = [(i.strip()).lower() for i in q.split(",")]
     
+    page = int(request.params.get("p"))
+    
     _query = False
     for word in qs:
         _query = _query | (db.item_name.item_str == word)
@@ -145,7 +147,7 @@ def search():
         _query = _query & (db.brawl.num_of_public != 0)
 
         if _query:
-            rows = db(_query).select(db.brawl.ALL, orderby=~db.brawl.num_of_public, limitby=(0, 10)).as_list()
+            rows = db(_query).select(db.brawl.ALL, orderby=~db.brawl.num_of_public, limitby=(page * 10, ((page * 10) + 11))).as_list()
             count = 0
             for row in rows:
                 items = db(db.item.brawl_id == row["id"]).select(db.item.ALL, orderby=~db.item.num_of_wins)

@@ -10,7 +10,9 @@ let init = (app) => {
     // This is the Vue data.
     app.data = {
         // Complete as you see fit.
+        results_page: 0,
         query: "",
+        query_len: 0,
         publix: false,
         brawl_mode: true,
         players: [],
@@ -25,9 +27,14 @@ let init = (app) => {
         return a;
     };
     
-    app.search = function () {
+    app.search = function (page) {
+        if(app.vue.query_len !== app.vue.query.length){
+            app.vue.query_len = app.vue.query.length;
+            app.vue.results_page = 0;
+        }
+        app.vue.results_page = app.vue.results_page + page;
         if (app.vue.query.length > 0) {
-            axios.get(search_url, {params: {q: app.vue.query}})
+            axios.get(search_url, {params: {q: app.vue.query, p: app.vue.results_page}})
                 .then(function (result) {
                     app.vue.results = result.data.results;
                 });
