@@ -29,7 +29,7 @@ from py4web import action, request, abort, redirect, URL
 from yatl.helpers import A
 from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash
 from py4web.utils.url_signer import URLSigner
-from .models import get_user_email, get_user
+from .models import get_user_email, get_user, get_time
 import random
 
 url_signer = URLSigner(session)
@@ -87,7 +87,7 @@ def user():
     if not curr_user:
         redirect(URL('index'))
     _user = db(db.auth_user.id == curr_user).select().first()
-    user_name = _user.first_name + " " + _user.last_name
+    user_name = _user.first_name.upper() + " " + _user.last_name.upper()
     return dict(
         curr_user=curr_user,
         user_name=user_name,
@@ -286,7 +286,8 @@ def submit():
                     _user_brawl = _user_brawl.id
                     user_brawl_check.update(
                         placement_order_ids = item_placement,
-                        public = publix
+                        public = publix,
+                        creation_date = get_time()
                         )
                 else:
                     _user_brawl = db.user_brawl.insert(
