@@ -10,6 +10,7 @@ let init = (app) => {
     // This is the Vue data.
     app.data = {
         // Complete as you see fit.
+        user: false,
         results_page: 0,
         query: "",
         query_len: 0,
@@ -76,6 +77,71 @@ let init = (app) => {
         app.vue.publix = !app.vue.publix;
     };
     
+    app.show_comments = function (index, b_data) {
+        let brawl = {};
+        if(b_data === 0){
+            brawl = app.vue.brawls[index];
+        }else{
+            brawl = app.vue.results[index];
+        }
+        brawl.show_comments = !brawl.show_comments;
+    };
+    
+    app.show_comments_post = function (index, b_data) {
+        let brawl = {};
+        if(b_data === 0){
+            brawl = app.vue.brawls[index];
+        }else{
+            brawl = app.vue.results[index];
+        }
+        if(!brawl.show_comments){
+            brawl.show_comments = true;
+        }
+    };
+    
+    app.get_comments = function (index, b_data) {
+        let brawl = {};
+        if(b_data === 0){
+            brawl = app.vue.brawls[index];
+        }else{
+            brawl = app.vue.results[index];
+        }
+        axios.get(get_comments_url, {params: {brawl_id: brawl.id}})
+            .then(function (result) {
+                brawl.comment_array = result.data.comments;
+            });
+    };
+    
+    app.clear_comments = function (index, b_data) {
+        let brawl = {};
+        if(b_data === 0){
+            brawl = app.vue.brawls[index];
+        }else{
+            brawl = app.vue.results[index];
+        }
+        brawl.comment_array = [];
+    };
+    
+    app.write_comment_mode = function (index, b_data, mode) {
+        let brawl = {};
+        if(b_data === 0){
+            brawl = app.vue.brawls[index];
+        }else{
+            brawl = app.vue.results[index];
+        }
+        brawl.write_comment = mode;
+    };
+    
+    app.empty_comment = function (index, b_data) {
+        let brawl = {};
+        if(b_data === 0){
+            brawl = app.vue.brawls[index];
+        }else{
+            brawl = app.vue.results[index];
+        }
+        brawl.comment = "";
+    };
+    
     app.set_brawl_mode = function () {
         app.vue.brawl_mode = !app.vue.brawl_mode;
     };
@@ -135,7 +201,33 @@ let init = (app) => {
         setTimeout(() => app.vue.showings = true, 600);
     };
     
+    app.post_comment = function (index, b_data) {
+        let brawl = {};
+        if(b_data === 0){
+            brawl = app.vue.brawls[index];
+        }else{
+            brawl = app.vue.results[index];
+        }
+        axios.post(post_comment_url,
+        {
+            comment: brawl.comment,
+            brawl_id: brawl.id,
+        }).then( function (response) {
+            brawl.comment_array.unshift({
+                id: response.data.comment_id,
+                bcomment: brawl.comment,
+                upvotes: 0,
+                comment_user: response.data.name
+            });
+            brawl.comments = brawl.comments + 1;
+            app.empty_comment(index, b_data);
+        });
+    };
+    
     app.upvote = function (index, b_data) {
+        if(!app.vue.user){
+            return;
+        }
         let brawl = {};
         if(b_data === 0){
             brawl = app.vue.brawls[index];
@@ -182,6 +274,9 @@ let init = (app) => {
     };
     
     app.downvote = function (index, b_data) {
+        if(!app.vue.user){
+            return;
+        }
         let brawl = {};
         if(b_data === 0){
             brawl = app.vue.brawls[index];
@@ -232,13 +327,20 @@ let init = (app) => {
         search: app.search,
         submit: app.submit,
         set_publix_mode: app.set_publix_mode,
+        show_comments: app.show_comments,
+        write_comment_mode: app.write_comment_mode,
+        empty_comment: app.empty_comment,
         set_brawl_mode: app.set_brawl_mode,
         clear_players: app.clear_players,
         copy_brawl: app.copy_brawl,
         get_updated_brawls: app.get_updated_brawls,
         slow_show: app.slow_show,
+        post_comment: app.post_comment,
         upvote: app.upvote,
         downvote: app.downvote,
+        get_comments: app.get_comments,
+        clear_comments: app.clear_comments,
+        show_comments_post: app.show_comments_post,
     };
 
     // This creates the Vue instance.
@@ -257,7 +359,9 @@ let init = (app) => {
                 let brawls = result.data.brawls;
                 app.enumerate(brawls);
                 app.vue.brawls = brawls;
+                app.vue.user = result.data.has_user;
             });
+        
         for(i = 0; i < 8; i++){
             app.vue.players.push({'id': i, 'str': ""});
         }

@@ -114,7 +114,7 @@
                 TOP 10 BRAWLS
             </h2>
             <div v-for="(brawl, bindex) in brawls">
-                <section class="hero  has-background-link-dark is-small mb-3">
+                <section class="hero has-background-link-dark is-small mb-3">
                     <div class="hero-body">
                         <nav class="level is-mobile">
                             <div class="level-left">
@@ -143,21 +143,76 @@
                         <nav class="level is-mobile ">
                             <div class="level-left">
                                 <div class="level-item has-text-centered">
-                                    <button class="button is-warning has-text-centered">
+                                    <button class="button is-warning has-text-centered mr-3">
                                         <h6 class="subtitle has-text-black-bis is-7 has-text-weight-bold" @click="copy_brawl(bindex, 0)">START THIS BRAWL</h6>
                                     </button>
                                 </div>
                             </div>
+                            <div class="level-item has-text-centered">
+                                <span v-if="brawl.up" class="icon is-size-3 has-text-primary mr-1 px-1 pt-1" @click="upvote(bindex, 0)"><i class="fa fa-arrow-up"></i></span>
+                                <span v-else class="icon is-size-3 has-text-black-bis mr-1 px-1 pt-1" @click="upvote(bindex, 0)"><i class="fa fa-arrow-up"></i></span>
+                                <h1 class="subtitle has-text-black-bis is-2 has-text-weight-semibold mx-1">{{brawl.upvotes}}</h1>
+                                <span v-if="brawl.down" class="icon is-size-3 has-text-primary ml-1 px-1 pt-1" @click="downvote(bindex, 0)"><i class="fa fa-arrow-down"></i></span>
+                                <span v-else class="icon is-size-3 has-text-black-bis ml-1 px-1 pt-1" @click="downvote(bindex, 0)"><i class="fa fa-arrow-down"></i></span>
+                            </div>
                             <div class="level-right">
-                                <div class="level-item has-text-centered">
-                                    <span v-if="brawl.up" class="icon is-size-1 has-text-primary mr-1 p-1" @click="upvote(bindex, 0)"><i class="fa fa-angle-up"></i></span>
-                                    <span v-else class="icon is-size-1 has-text-black-bis mr-1 p-1" @click="upvote(bindex, 0)"><i class="fa fa-angle-up"></i></span>
-                                    <h1 class="subtitle has-text-black-bis is-2 has-text-weight-semibold mx-1">{{brawl.upvotes}}</h1>
-                                    <span v-if="brawl.down" class="icon is-size-1 has-text-primary ml-1 p-1" @click="downvote(bindex, 0)"><i class="fa fa-angle-down"></i></span>
-                                    <span v-else class="icon is-size-1 has-text-black-bis ml-1 p-1" @click="downvote(bindex, 0)"><i class="fa fa-angle-down"></i></span>
+                                <div class="buttons">
+                                    <div class="level-item has-text-centered">
+                                        <button v-if="brawl.show_comments && brawl.comments > 0" class="button is-light has-text-centered px-2"><span class="icon is-size-3 has-text-black-bis" @click="show_comments(bindex, 0) + clear_comments(bindex, 0)"><i class="fa fa-angle-down"></i></span></button>
+                                        <button v-if="!brawl.show_comments && brawl.comments > 0" class="button is-black has-text-centered px-2" @click="show_comments(bindex, 0) + get_comments(bindex, 0)"><span class="icon is-size-3 has-text-grey"><i class="fa fa-angle-up"></i></span></button>
+                                        <button v-if="user" class="button is-primary has-text-centered px-2">
+                                            <h6 class="subtitle has-text-black-bis is-7 has-text-weight-bold" @click="write_comment_mode(bindex, 0, true)">COMMENT</h6>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </nav>
+                        <section>
+                            <nav v-if="brawl.write_comment" class="level is-mobile">
+                                <div class="level-left"></div>
+                                <div class="level-item has-text-centered">
+                                    <textarea class="textarea" placeholder="Enter comment..." type="text" v-model="brawl.comment"></textarea>
+                                </div>
+                                <div class="level-right">
+                                    <div class="level-item has-text-centered">
+                                        <span>
+                                            <p>
+                                                <button class="button has-background-primary-dark is-grey has-text-centered px-4 mb-2">
+                                                    <h6 class="subtitle has-text-white-ter is-7 has-text-weight-bold" @click="show_comments_post(bindex, 0) + get_comments(bindex, 0) + post_comment(bindex, 0) + write_comment_mode(bindex, 0, false)">POST</h6>
+                                                </button>
+                                            </p>
+                                            <p>
+                                                <button class="button has-background-warning-dark is-grey has-text-centered px-2 mt-2">
+                                                    <h6 class="subtitle has-text-white-ter is-7 has-text-weight-bold" @click="write_comment_mode(bindex, 0, false) + empty_comment(bindex, 0)">CANCEL</h6>
+                                                </button>
+                                            </p>
+                                        </span>
+                                    </div>
+                                </div>
+                            </nav>
+                        </section>
+                        <div v-for="comment in brawl.comment_array">
+                            <div class="notification is-primary py-2 mb-3">
+                                <h6 class="subtitle has-text-left has-text-black-bis is-7 has-text-weight-semibold">{{comment.comment_user}}</h6>
+                                <h6 class="title has-text-left has-text-black-bis is-6 has-text-weight-medium mb-3">{{comment.bcomment}}</h6>
+                                <nav class="level is-mobile">
+                                    <div class="level-left">
+                                        <div class="level-item has-text-centered">
+                                            <button class="button has-background-danger-dark is-grey has-text-centered m-0">
+                                                <h6 class="subtitle has-text-white-ter is-7 has-text-weight-bold">upvote</h6>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="level-right">
+                                        <div class="level-item has-text-centered">
+                                            <button class="button has-background-danger-dark is-grey has-text-centered m-0">
+                                                <h6 class="subtitle has-text-white-ter is-7 has-text-weight-bold">DELETE</h6>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </nav>
+                            </div>
+                        </div>
                     </div>
                 </section>
             </div>
@@ -189,21 +244,76 @@
                         <nav class="level is-mobile ">
                             <div class="level-left">
                                 <div class="level-item has-text-centered">
-                                    <button class="button is-warning has-text-centered">
+                                    <button class="button is-warning has-text-centered mr-3">
                                         <h6 class="subtitle has-text-black-bis is-7 has-text-weight-bold" @click="copy_brawl(rindex, 1)">START THIS BRAWL</h6>
                                     </button>
                                 </div>
                             </div>
+                            <div class="level-item has-text-centered">
+                                <span v-if="r.up" class="icon is-size-3 has-text-primary mr-1 px-1 pt-1" @click="upvote(rindex, 1)"><i class="fa fa-arrow-up"></i></span>
+                                <span v-else class="icon is-size-3 has-text-black-bis mr-1 px-1 pt-1" @click="upvote(rindex, 1)"><i class="fa fa-arrow-up"></i></span>
+                                <h1 class="subtitle has-text-black-bis is-2 has-text-weight-semibold mx-1">{{r.upvotes}}</h1>
+                                <span v-if="r.down" class="icon is-size-3 has-text-primary ml-1 px-1 pt-1" @click="downvote(rindex, 1)"><i class="fa fa-arrow-down"></i></span>
+                                <span v-else class="icon is-size-3 has-text-black-bis ml-1 px-1 pt-1" @click="downvote(rindex, 1)"><i class="fa fa-arrow-down"></i></span>
+                            </div>
                             <div class="level-right">
-                                <div class="level-item has-text-centered">
-                                    <span v-if="r.up" class="icon is-size-1 has-text-primary mr-1 p-1" @click="upvote(rindex, 1)"><i class="fa fa-angle-up"></i></span>
-                                    <span v-else class="icon is-size-1 has-text-black-bis mr-1 p-1" @click="upvote(rindex, 1)"><i class="fa fa-angle-up"></i></span>
-                                    <h1 class="subtitle has-text-black-bis is-2 has-text-weight-semibold mx-1">{{r.upvotes}}</h1>
-                                    <span v-if="r.down" class="icon is-size-1 has-text-primary ml-1 p-1" @click="downvote(rindex, 1)"><i class="fa fa-angle-down"></i></span>
-                                    <span v-else class="icon is-size-1 has-text-black-bis ml-1 p-1" @click="downvote(rindex, 1)"><i class="fa fa-angle-down"></i></span>
+                                <div class="buttons">
+                                    <div class="level-item has-text-centered">
+                                        <button v-if="r.show_comments && r.comments > 0" class="button is-light has-text-centered px-2"><span class="icon is-size-3 has-text-black-bis" @click="show_comments(rindex, 1) + clear_comments(rindex, 1)"><i class="fa fa-angle-down"></i></span></button>
+                                        <button v-if="!r.show_comments && r.comments > 0" class="button is-black has-text-centered px-2" @click="show_comments(rindex, 1) + get_comments(rindex, 1)"><span class="icon is-size-3 has-text-grey"><i class="fa fa-angle-up"></i></span></button>
+                                        <button v-if="user" class="button is-primary has-text-centered px-2">
+                                            <h6 class="subtitle has-text-black-bis is-7 has-text-weight-bold" @click="write_comment_mode(rindex, 1, true)">COMMENT</h6>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </nav>
+                        <section>
+                            <nav v-if="r.write_comment" class="level is-mobile">
+                                <div class="level-left"></div>
+                                <div class="level-item has-text-centered">
+                                    <textarea class="textarea" placeholder="Enter comment..." type="text" v-model="r.comment"></textarea>
+                                </div>
+                                <div class="level-right">
+                                    <div class="level-item has-text-centered">
+                                        <span>
+                                            <p>
+                                                <button class="button has-background-primary-dark is-grey has-text-centered px-4 mb-2">
+                                                    <h6 class="subtitle has-text-white-ter is-7 has-text-weight-bold" @click="show_comments_post(rindex, 1) + get_comments(rindex, 1) + post_comment(rindex, 1) + write_comment_mode(rindex, 1, false)">POST</h6>
+                                                </button>
+                                            </p>
+                                            <p>
+                                                <button class="button has-background-warning-dark is-grey has-text-centered px-2 mt-2">
+                                                    <h6 class="subtitle has-text-white-ter is-7 has-text-weight-bold" @click="write_comment_mode(rindex, 1, false) + empty_comment(rindex, 1)">CANCEL</h6>
+                                                </button>
+                                            </p>
+                                        </span>
+                                    </div>
+                                </div>
+                            </nav>
+                        </section>
+                        <div v-for="comment in r.comment_array">
+                            <div class="notification is-primary py-2 mb-3">
+                                <h6 class="subtitle has-text-left has-text-black-bis is-7 has-text-weight-semibold">{{comment.comment_user}}</h6>
+                                <h6 class="title has-text-left has-text-black-bis is-6 has-text-weight-medium mb-3">{{comment.bcomment}}</h6>
+                                <nav class="level is-mobile">
+                                    <div class="level-left">
+                                        <div class="level-item has-text-centered">
+                                            <button class="button has-background-danger-dark is-grey has-text-centered m-0">
+                                                <h6 class="subtitle has-text-white-ter is-7 has-text-weight-bold">upvote</h6>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="level-right">
+                                        <div class="level-item has-text-centered">
+                                            <button class="button has-background-danger-dark is-grey has-text-centered m-0">
+                                                <h6 class="subtitle has-text-white-ter is-7 has-text-weight-bold">DELETE</h6>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </nav>
+                            </div>
+                        </div>
                     </div>
                 </section>
             </div>
@@ -230,6 +340,8 @@
   let submit_url = "[[=XML(submit_url)]]";
   let copy_brawl_url = "[[=XML(copy_brawl_url)]]";
   let upvote_brawl_url = "[[=XML(upvote_brawl_url)]]";
+  let post_comment_url = "[[=XML(post_comment_url)]]";
+  let get_comments_url = "[[=XML(get_comments_url)]]";
 </script>
 <script src="js/index.js"></script>
 [[end]]

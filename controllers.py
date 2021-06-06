@@ -59,11 +59,14 @@ def index():
         submit_url = URL('submit', signer=url_signer),
         copy_brawl_url = URL('copy_brawl', signer=url_signer),
         upvote_brawl_url = URL('upvote_brawl', signer=url_signer),
+        post_comment_url = URL('post_comment', signer=url_signer),
+        get_comments_url = URL('get_comments', signer=url_signer),
         )
 
 @action('load_brawls')
 @action.uses(db, auth)
 def load_brawls():
+    has_user = True
     _user = get_user()
     _user_email = get_user_email()
     brawls = db(db.brawl.num_of_public != 0).select(db.brawl.ALL, orderby=~db.brawl.num_of_public | ~db.brawl.upvotes, limitby=(0, 10)).as_list()
@@ -79,6 +82,10 @@ def load_brawls():
             name_list.append((db.item_name[_item.item_name_id]).item_str)
         brawl["_num_of_wins"] = wins_list
         brawl["_item_name"] = name_list
+        brawl["comment"] = ""
+        brawl["show_comments"] = False
+        brawl["write_comment"] = False
+        brawl["comment_array"] = []
         upvote = db((db.upvote.brawl_id == brawl["id"]) & (db.upvote.created_by == _user_email)).select().first()
         if upvote:
             brawl["up"] = upvote.up
@@ -86,8 +93,10 @@ def load_brawls():
         else:
             brawl["up"] = False
             brawl["down"] = False
-        
-    return dict(brawls=brawls)
+            
+    if not _user:
+        has_user = False
+    return dict(brawls=brawls, has_user=has_user)
 
 
 @action('user')
@@ -171,6 +180,10 @@ def search():
                     name_list.append((db.item_name[_item.item_name_id]).item_str)
                 row["_num_of_wins"] = wins_list
                 row["_item_name"] = name_list
+                row["comment"] = ""
+                row["show_comments"] = False
+                row["write_comment"] = False
+                row["comment_array"] = []
                 upvote = db((db.upvote.brawl_id == row["id"]) & (db.upvote.created_by == _user_email)).select().first()
                 if upvote:
                     row["up"] = upvote.up
@@ -484,6 +497,55 @@ def upvote_brawl():
             )
     
     return "ok"
+
+@action('post_comment', method="POST")
+@action.uses(db, session, url_signer.verify())
+def post_comment():
+    comment = request.json.get('comment')
+    brawl_id = request.json.get('brawl_id')
+    
+    brawl_check = db(db.brawl.id == brawl_id)
+    brawl = brawl_check.select().first()
+    
+    user = db(db.auth_user.id == get_user()).select().first()
+    name = user.first_name + " " + user.last_name
+    
+    brawl_check.update(
+        comments = brawl.comments + 1
+        )
+    
+    comment_id = db.comment.insert(
+        brawl_id = brawl_id,
+        bcomment = comment,
+        comment_user = name,
+        )
+    
+    return dict(comment_id=comment_id, name=name)
+
+@action('get_comments')
+@action.uses(db, session, url_signer.verify())
+def get_comments():
+    brawl_id = request.params.get("brawl_id")
+    page = 0
+    comments = db(db.comment.brawl_id == brawl_id).select(db.comment.ALL, orderby=~db.comment.creation_date | ~db.comment.upvotes, limitby=(page * 10, ((page * 10) + 11))).as_list()
+    return dict(comments=comments)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
