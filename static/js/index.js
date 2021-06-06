@@ -44,6 +44,12 @@ let init = (app) => {
                         window.scrollTo(0,0);
                     }
                 });
+            if(app.vue.results.length == 1){
+                for(let i = 0; i < app.vue.brawls.length; i++){
+                    app.vue.brawls[i].comment_array = [];
+                    app.vue.brawls[i].show_comments = false;
+                }
+            }
         } else {
             app.vue.results = [];
         }
@@ -249,6 +255,80 @@ let init = (app) => {
         });
     };
     
+    app.upvote_comment = function (index, cindex, b_data) {
+        if(!app.vue.user){
+            return;
+        }
+        let brawl = {};
+        if(b_data === 0){
+            brawl = app.vue.brawls[index];
+        }else{
+            brawl = app.vue.results[index];
+        }
+        
+        comment = brawl.comment_array[cindex];
+        
+        let incre = 0;
+        
+        if(comment.down){
+            comment.down = false;
+            incre++;
+        }
+        if(comment.up){
+            comment.up = false;
+            incre--;
+        }
+        else{
+            comment.up = true;
+            incre++;
+        }
+        comment.upvotes += incre;
+        axios.post(upvote_comment_url,
+        {
+            comment_id: comment.id,
+            up: comment.up,
+            down: comment.down,
+            change: incre,
+        });
+    };
+    
+    app.downvote_comment = function (index, cindex, b_data) {
+        if(!app.vue.user){
+            return;
+        }
+        let brawl = {};
+        if(b_data === 0){
+            brawl = app.vue.brawls[index];
+        }else{
+            brawl = app.vue.results[index];
+        }
+        
+        comment = brawl.comment_array[cindex];
+        
+        let decre = 0;
+        
+        if(comment.up){
+            comment.up = false;
+            decre--;
+        }
+        if(comment.down){
+            comment.down = false;
+            decre++;
+        }
+        else{
+            comment.down = true;
+            decre--;
+        }
+        comment.upvotes += decre;
+        axios.post(upvote_comment_url,
+        {
+            comment_id: comment.id,
+            up: comment.up,
+            down: comment.down,
+            change: decre,
+        });
+    };
+    
     app.upvote = function (index, b_data) {
         if(!app.vue.user){
             return;
@@ -260,7 +340,7 @@ let init = (app) => {
             brawl = app.vue.results[index];
         }
         
-        incre = 0;
+        let incre = 0;
         
         if(brawl.down){
             brawl.down = false;
@@ -285,7 +365,6 @@ let init = (app) => {
             if(b_data !== 0){
                 for(let i = 0; i < app.vue.brawls.length; i++){
                     if(app.vue.brawls[i].id === brawl.id){
-                        console.log("upvote");
                         let b_brawl = app.vue.brawls[i];
                         b_brawl.up = brawl.up;
                         b_brawl.down = brawl.down;
@@ -293,7 +372,6 @@ let init = (app) => {
                         break;
                     }
                 }
-                
             }
         });
     };
@@ -334,7 +412,6 @@ let init = (app) => {
             if(b_data !== 0){
                 for(let i = 0; i < app.vue.brawls.length; i++){
                     if(app.vue.brawls[i].id === brawl.id){
-                        console.log("downvote");
                         let b_brawl = app.vue.brawls[i];
                         b_brawl.up = brawl.up;
                         b_brawl.down = brawl.down;
@@ -367,6 +444,8 @@ let init = (app) => {
         clear_comments: app.clear_comments,
         show_comments_post: app.show_comments_post,
         delete_comment: app.delete_comment,
+        upvote_comment: app.upvote_comment,
+        downvote_comment: app.downvote_comment,
     };
 
     // This creates the Vue instance.

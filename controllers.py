@@ -62,6 +62,7 @@ def index():
         post_comment_url = URL('post_comment', signer=url_signer),
         get_comments_url = URL('get_comments', signer=url_signer),
         delete_comment_url = URL('delete_comment', signer=url_signer),
+        upvote_comment_url = URL('upvote_comment', signer=url_signer),
         )
 
 @action('load_brawls')
@@ -496,7 +497,38 @@ def upvote_brawl():
             up = up,
             down = down
             )
+    return "ok"
+
+@action('upvote_comment', method="POST")
+@action.uses(db, session, url_signer.verify())
+def upvote_comment():
+    user_email = get_user_email()
+    comment_id = request.json.get('comment_id')
+    up = request.json.get('up')
+    down = request.json.get('down')
+    change = request.json.get('change')
     
+    comment_check = db(db.comment.id == comment_id)
+    comment = comment_check.select().first()
+    
+    comment_check.update(
+        upvotes = comment.upvotes + change
+        )
+    
+    comment_upvote_check = db((db.comment_upvote.comment_id == comment.id) & (db.comment_upvote.created_by == user_email))
+    comment_upvote = comment_upvote_check.select().first()
+    
+    if comment_upvote:
+        comment_upvote_check.update(
+            up = up,
+            down = down
+            )
+    else:
+        db.comment_upvote.insert(
+            comment_id = comment.id,
+            up = up,
+            down = down
+            )
     return "ok"
 
 @action('post_comment', method="POST")
