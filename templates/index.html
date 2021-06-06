@@ -148,6 +148,15 @@
                                     </button>
                                 </div>
                             </div>
+                            <div class="level-right">
+                                <div class="level-item has-text-centered">
+                                    <span v-if="brawl.up" class="icon is-size-1 has-text-primary mr-1 p-1" @click="upvote(bindex, 0)"><i class="fa fa-angle-up"></i></span>
+                                    <span v-else class="icon is-size-1 has-text-black-bis mr-1 p-1" @click="upvote(bindex, 0)"><i class="fa fa-angle-up"></i></span>
+                                    <h1 class="subtitle has-text-black-bis is-2 has-text-weight-semibold mx-1">{{brawl.upvotes}}</h1>
+                                    <span v-if="brawl.down" class="icon is-size-1 has-text-primary ml-1 p-1" @click="downvote(bindex, 0)"><i class="fa fa-angle-down"></i></span>
+                                    <span v-else class="icon is-size-1 has-text-black-bis ml-1 p-1" @click="downvote(bindex, 0)"><i class="fa fa-angle-down"></i></span>
+                                </div>
+                            </div>
                         </nav>
                     </div>
                 </section>
@@ -185,6 +194,15 @@
                                     </button>
                                 </div>
                             </div>
+                            <div class="level-right">
+                                <div class="level-item has-text-centered">
+                                    <span v-if="r.up" class="icon is-size-1 has-text-primary mr-1 p-1" @click="upvote(rindex, 1)"><i class="fa fa-angle-up"></i></span>
+                                    <span v-else class="icon is-size-1 has-text-black-bis mr-1 p-1" @click="upvote(rindex, 1)"><i class="fa fa-angle-up"></i></span>
+                                    <h1 class="subtitle has-text-black-bis is-2 has-text-weight-semibold mx-1">{{r.upvotes}}</h1>
+                                    <span v-if="r.down" class="icon is-size-1 has-text-primary ml-1 p-1" @click="downvote(rindex, 1)"><i class="fa fa-angle-down"></i></span>
+                                    <span v-else class="icon is-size-1 has-text-black-bis ml-1 p-1" @click="downvote(rindex, 1)"><i class="fa fa-angle-down"></i></span>
+                                </div>
+                            </div>
                         </nav>
                     </div>
                 </section>
@@ -211,6 +229,7 @@
   let search_url = "[[=XML(search_url)]]";
   let submit_url = "[[=XML(submit_url)]]";
   let copy_brawl_url = "[[=XML(copy_brawl_url)]]";
+  let upvote_brawl_url = "[[=XML(upvote_brawl_url)]]";
 </script>
 <script src="js/index.js"></script>
 [[end]]

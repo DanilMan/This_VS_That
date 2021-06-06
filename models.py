@@ -18,6 +18,7 @@ def get_time():
 
 db.define_table(
     'brawl',
+    Field('upvotes', 'integer', default=0, requires=IS_INT_IN_RANGE(0, 1e6)),
     Field('num_of_public', 'integer', default=0, requires=IS_INT_IN_RANGE(0, 1e6)),
     Field('num_of_plays', 'integer', default=1, requires=IS_INT_IN_RANGE(0, 1e6)),
 )
@@ -42,6 +43,14 @@ db.define_table(
     Field('created_by', default=get_user_email),
     Field('creation_date', 'datetime', default=get_time),
     Field('public', 'boolean', default=False),
+)
+
+db.define_table(
+    'upvote',
+    Field('brawl_id', 'reference brawl'),
+    Field('up', 'boolean', default=False),
+    Field('down', 'boolean', default=False),
+    Field('created_by', default=get_user_email),
 )
 
 db.commit()

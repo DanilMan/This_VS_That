@@ -51,7 +51,7 @@ let init = (app) => {
     app.submit = function () {
         if(app.vue.players[1] !== ""){
             player_strs = [];
-            for(i = 0; i < app.vue.players.length; i++){
+            for(let i = 0; i < app.vue.players.length; i++){
                 player_strs.push(app.vue.players[i].str);
             }
             axios.post(submit_url,
@@ -60,7 +60,7 @@ let init = (app) => {
                 publix: app.vue.publix,
             }).then(function (response) {
                 new_players = [];
-                for(i = 0; i < response.data.players.length; i++){
+                for(let i = 0; i < response.data.players.length; i++){
                     new_players.push({'id': i, 'str': response.data.players[i]});
                 }
                 app.vue.players = new_players;
@@ -81,7 +81,7 @@ let init = (app) => {
     };
     
     app.clear_players = function () {
-        for(i = 0; i < 8; i++){
+        for(let i = 0; i < 8; i++){
             if(i < app.vue.players.length){
                 app.vue.players[i].str = "";
             }else{
@@ -91,12 +91,13 @@ let init = (app) => {
     };
     
     app.copy_brawl = function (index, b_data) {
+        let brawl = {};
         if(b_data === 0){
             brawl = app.vue.brawls[index];
         }else{
             brawl = app.vue.results[index];
         }
-        for(i = 0; i < app.vue.players.length; i++){
+        for(let i = 0; i < app.vue.players.length; i++){
             if(i < brawl._item_name.length){
                 app.vue.players[i].str = brawl._item_name[i];
             }else{
@@ -133,6 +134,97 @@ let init = (app) => {
         }
         setTimeout(() => app.vue.showings = true, 600);
     };
+    
+    app.upvote = function (index, b_data) {
+        let brawl = {};
+        if(b_data === 0){
+            brawl = app.vue.brawls[index];
+        }else{
+            brawl = app.vue.results[index];
+        }
+        
+        incre = 0;
+        
+        if(brawl.down){
+            brawl.down = false;
+            incre++;
+        }
+        if(brawl.up){
+            brawl.up = false;
+            incre--;
+        }
+        else{
+            brawl.up = true;
+            incre++;
+        }
+        brawl.upvotes += incre;
+        axios.post(upvote_brawl_url,
+        {
+            brawl_id: brawl.id,
+            up: brawl.up,
+            down: brawl.down,
+            change: incre,
+        }).then(function () {
+            if(b_data !== 0){
+                for(let i = 0; i < app.vue.brawls.length; i++){
+                    if(app.vue.brawls[i].id === brawl.id){
+                        console.log("upvote");
+                        let b_brawl = app.vue.brawls[i];
+                        b_brawl.up = brawl.up;
+                        b_brawl.down = brawl.down;
+                        b_brawl.upvotes = brawl.upvotes;
+                        break;
+                    }
+                }
+                
+            }
+        });
+    };
+    
+    app.downvote = function (index, b_data) {
+        let brawl = {};
+        if(b_data === 0){
+            brawl = app.vue.brawls[index];
+        }else{
+            brawl = app.vue.results[index];
+        }
+        
+        let decre = 0;
+        
+        if(brawl.up){
+            brawl.up = false;
+            decre--;
+        }
+        if(brawl.down){
+            brawl.down = false;
+            decre++;
+        }
+        else{
+            brawl.down = true;
+            decre--;
+        }
+        brawl.upvotes += decre;
+        axios.post(upvote_brawl_url,
+        {
+            brawl_id: brawl.id,
+            up: brawl.up,
+            down: brawl.down,
+            change: decre,
+        }).then(function () {
+            if(b_data !== 0){
+                for(let i = 0; i < app.vue.brawls.length; i++){
+                    if(app.vue.brawls[i].id === brawl.id){
+                        console.log("downvote");
+                        let b_brawl = app.vue.brawls[i];
+                        b_brawl.up = brawl.up;
+                        b_brawl.down = brawl.down;
+                        b_brawl.upvotes = brawl.upvotes;
+                        break;
+                    }
+                }
+            }
+        });
+    };
 
     // This contains all the methods.
     app.methods = {
@@ -145,6 +237,8 @@ let init = (app) => {
         copy_brawl: app.copy_brawl,
         get_updated_brawls: app.get_updated_brawls,
         slow_show: app.slow_show,
+        upvote: app.upvote,
+        downvote: app.downvote,
     };
 
     // This creates the Vue instance.

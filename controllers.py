@@ -58,13 +58,15 @@ def index():
         search_url = URL('search', signer=url_signer),
         submit_url = URL('submit', signer=url_signer),
         copy_brawl_url = URL('copy_brawl', signer=url_signer),
+        upvote_brawl_url = URL('upvote_brawl', signer=url_signer),
         )
 
 @action('load_brawls')
 @action.uses(db, auth)
 def load_brawls():
     _user = get_user()
-    brawls = db(db.brawl.num_of_public != 0).select(db.brawl.ALL, orderby=~db.brawl.num_of_public, limitby=(0, 10)).as_list()
+    _user_email = get_user_email()
+    brawls = db(db.brawl.num_of_public != 0).select(db.brawl.ALL, orderby=~db.brawl.num_of_public | ~db.brawl.upvotes, limitby=(0, 10)).as_list()
     counter = 0
     for brawl in brawls:
         counter = counter + 1
@@ -77,6 +79,14 @@ def load_brawls():
             name_list.append((db.item_name[_item.item_name_id]).item_str)
         brawl["_num_of_wins"] = wins_list
         brawl["_item_name"] = name_list
+        upvote = db((db.upvote.brawl_id == brawl["id"]) & (db.upvote.created_by == _user_email)).select().first()
+        if upvote:
+            brawl["up"] = upvote.up
+            brawl["down"] = upvote.down
+        else:
+            brawl["up"] = False
+            brawl["down"] = False
+        
     return dict(brawls=brawls)
 
 
@@ -123,6 +133,7 @@ def load_user_brawls():
 @action('search')
 @action.uses(db)
 def search():
+    _user_email = get_user_email()
     rows = []
     
     q = request.params.get("q")
@@ -149,7 +160,7 @@ def search():
         _query = _query & (db.brawl.num_of_public != 0)
 
         if _query:
-            rows = db(_query).select(db.brawl.ALL, orderby=~db.brawl.num_of_public, limitby=(page * 10, ((page * 10) + 11))).as_list()
+            rows = db(_query).select(db.brawl.ALL, orderby=~db.brawl.num_of_public | ~db.brawl.upvotes, limitby=(page * 10, ((page * 10) + 11))).as_list()
             count = 0
             for row in rows:
                 items = db(db.item.brawl_id == row["id"]).select(db.item.ALL, orderby=~db.item.num_of_wins)
@@ -160,6 +171,13 @@ def search():
                     name_list.append((db.item_name[_item.item_name_id]).item_str)
                 row["_num_of_wins"] = wins_list
                 row["_item_name"] = name_list
+                upvote = db((db.upvote.brawl_id == row["id"]) & (db.upvote.created_by == _user_email)).select().first()
+                if upvote:
+                    row["up"] = upvote.up
+                    row["down"] = upvote.down
+                else:
+                    row["up"] = False
+                    row["down"] = False
         
     return dict(results=rows)
 
@@ -434,9 +452,38 @@ def _delete():
     
     return "ok"
 
-
-
-
+@action('upvote_brawl', method="POST")
+@action.uses(db, session, url_signer.verify())
+def upvote_brawl():
+    user_email = get_user_email()
+    brawl_id = request.json.get('brawl_id')
+    up = request.json.get('up')
+    down = request.json.get('down')
+    change = request.json.get('change')
+    
+    brawl_check = db(db.brawl.id == brawl_id)
+    brawl = brawl_check.select().first()
+    
+    brawl_check.update(
+        upvotes = brawl.upvotes + change
+        )
+    
+    upvote_check = db((db.upvote.brawl_id == brawl_id) & (db.upvote.created_by == user_email))
+    upvote = upvote_check.select().first()
+    
+    if upvote:
+        upvote_check.update(
+            up = up,
+            down = down
+            )
+    else:
+        db.upvote.insert(
+            brawl_id = brawl.id,
+            up = up,
+            down = down
+            )
+    
+    return "ok"
 
 
 
