@@ -168,7 +168,7 @@
                             </div>
                         </nav>
                         <section>
-                            <nav v-if="brawl.write_comment" class="level is-mobile">
+                            <nav v-if="brawl.write_comment" class="level is-mobile mb-3">
                                 <div class="level-left"></div>
                                 <div class="level-item has-text-centered">
                                     <textarea class="textarea" placeholder="Enter comment..." type="text" v-model="brawl.comment"></textarea>
@@ -191,22 +191,24 @@
                                 </div>
                             </nav>
                         </section>
-                        <div v-for="comment in brawl.comment_array">
+                        <div v-for="(comment, cindex) in brawl.comment_array">
                             <div class="notification is-primary py-2 mb-3">
                                 <h6 class="subtitle has-text-left has-text-black-bis is-7 has-text-weight-semibold">{{comment.comment_user}}</h6>
                                 <h6 class="title has-text-left has-text-black-bis is-6 has-text-weight-medium mb-3">{{comment.bcomment}}</h6>
                                 <nav class="level is-mobile">
                                     <div class="level-left">
                                         <div class="level-item has-text-centered">
-                                            <button class="button has-background-danger-dark is-grey has-text-centered m-0">
-                                                <h6 class="subtitle has-text-white-ter is-7 has-text-weight-bold">upvote</h6>
-                                            </button>
+                                            <span v-if="comment.up" class="icon is-size-4 has-text-link-dark mr-1 px-1 pt-1" @click="upvote(bindex, 0)"><i class="fa fa-arrow-up"></i></span>
+                                            <span v-else class="icon is-size-4 has-text-black-bis mr-1 px-1 pt-1" @click="upvote(bindex, 0)"><i class="fa fa-arrow-up"></i></span>
+                                            <h1 class="subtitle has-text-black-bis is-3 has-text-weight-semibold mx-1">{{comment.upvotes}}</h1>
+                                            <span v-if="comment.down" class="icon is-size-4 has-text-link-dark ml-1 px-1 pt-1" @click="downvote(bindex, 0)"><i class="fa fa-arrow-down"></i></span>
+                                            <span v-else class="icon is-size-4 has-text-black-bis ml-1 px-1 pt-1" @click="downvote(bindex, 0)"><i class="fa fa-arrow-down"></i></span>
                                         </div>
                                     </div>
-                                    <div class="level-right">
+                                    <div v-if="user_email === comment.created_by" class="level-right">
                                         <div class="level-item has-text-centered">
                                             <button class="button has-background-danger-dark is-grey has-text-centered m-0">
-                                                <h6 class="subtitle has-text-white-ter is-7 has-text-weight-bold">DELETE</h6>
+                                                <h6 class="subtitle has-text-white-ter is-7 has-text-weight-bold" @click="delete_comment(bindex, cindex, 0)">DELETE</h6>
                                             </button>
                                         </div>
                                     </div>
@@ -269,7 +271,7 @@
                             </div>
                         </nav>
                         <section>
-                            <nav v-if="r.write_comment" class="level is-mobile">
+                            <nav v-if="r.write_comment" class="level is-mobile mb-3">
                                 <div class="level-left"></div>
                                 <div class="level-item has-text-centered">
                                     <textarea class="textarea" placeholder="Enter comment..." type="text" v-model="r.comment"></textarea>
@@ -292,22 +294,24 @@
                                 </div>
                             </nav>
                         </section>
-                        <div v-for="comment in r.comment_array">
+                        <div v-for="(rcomment, crindex) in r.comment_array">
                             <div class="notification is-primary py-2 mb-3">
-                                <h6 class="subtitle has-text-left has-text-black-bis is-7 has-text-weight-semibold">{{comment.comment_user}}</h6>
-                                <h6 class="title has-text-left has-text-black-bis is-6 has-text-weight-medium mb-3">{{comment.bcomment}}</h6>
+                                <h6 class="subtitle has-text-left has-text-black-bis is-7 has-text-weight-semibold">{{rcomment.comment_user}}</h6>
+                                <h6 class="title has-text-left has-text-black-bis is-6 has-text-weight-medium mb-3">{{rcomment.bcomment}}</h6>
                                 <nav class="level is-mobile">
                                     <div class="level-left">
                                         <div class="level-item has-text-centered">
-                                            <button class="button has-background-danger-dark is-grey has-text-centered m-0">
-                                                <h6 class="subtitle has-text-white-ter is-7 has-text-weight-bold">upvote</h6>
-                                            </button>
+                                            <span v-if="rcomment.up" class="icon is-size-4 has-text-link-dark mr-1 px-1 pt-1" @click="upvote(rindex, 1)"><i class="fa fa-arrow-up"></i></span>
+                                            <span v-else class="icon is-size-4 has-text-black-bis mr-1 px-1 pt-1" @click="upvote(rindex, 1)"><i class="fa fa-arrow-up"></i></span>
+                                            <h1 class="subtitle has-text-black-bis is-3 has-text-weight-semibold mx-1">{{rcomment.upvotes}}</h1>
+                                            <span v-if="rcomment.down" class="icon is-size-4 has-text-link-dark ml-1 px-1 pt-1" @click="downvote(rindex, 1)"><i class="fa fa-arrow-down"></i></span>
+                                            <span v-else class="icon is-size-4 has-text-black-bis ml-1 px-1 pt-1" @click="downvote(rindex, 1)"><i class="fa fa-arrow-down"></i></span>
                                         </div>
                                     </div>
-                                    <div class="level-right">
+                                    <div v-if="user_email === rcomment.created_by" class="level-right">
                                         <div class="level-item has-text-centered">
                                             <button class="button has-background-danger-dark is-grey has-text-centered m-0">
-                                                <h6 class="subtitle has-text-white-ter is-7 has-text-weight-bold">DELETE</h6>
+                                                <h6 class="subtitle has-text-white-ter is-7 has-text-weight-bold" @click="delete_comment(rindex, crindex, 1)">DELETE</h6>
                                             </button>
                                         </div>
                                     </div>
@@ -342,6 +346,7 @@
   let upvote_brawl_url = "[[=XML(upvote_brawl_url)]]";
   let post_comment_url = "[[=XML(post_comment_url)]]";
   let get_comments_url = "[[=XML(get_comments_url)]]";
+  let delete_comment_url = "[[=XML(delete_comment_url)]]";
 </script>
 <script src="js/index.js"></script>
 [[end]]

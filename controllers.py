@@ -61,6 +61,7 @@ def index():
         upvote_brawl_url = URL('upvote_brawl', signer=url_signer),
         post_comment_url = URL('post_comment', signer=url_signer),
         get_comments_url = URL('get_comments', signer=url_signer),
+        delete_comment_url = URL('delete_comment', signer=url_signer),
         )
 
 @action('load_brawls')
@@ -69,7 +70,7 @@ def load_brawls():
     has_user = True
     _user = get_user()
     _user_email = get_user_email()
-    brawls = db(db.brawl.num_of_public != 0).select(db.brawl.ALL, orderby=~db.brawl.num_of_public | ~db.brawl.upvotes, limitby=(0, 10)).as_list()
+    brawls = db(db.brawl.num_of_public != 0).select(db.brawl.ALL, orderby=~db.brawl.num_of_public | ~db.brawl.upvotes | ~db.brawl.comments, limitby=(0, 10)).as_list()
     counter = 0
     for brawl in brawls:
         counter = counter + 1
@@ -96,7 +97,7 @@ def load_brawls():
             
     if not _user:
         has_user = False
-    return dict(brawls=brawls, has_user=has_user)
+    return dict(brawls=brawls, has_user=has_user, user_email=_user_email)
 
 
 @action('user')
@@ -525,12 +526,32 @@ def post_comment():
 @action('get_comments')
 @action.uses(db, session, url_signer.verify())
 def get_comments():
+    user_email = get_user_email()
     brawl_id = request.params.get("brawl_id")
     page = 0
     comments = db(db.comment.brawl_id == brawl_id).select(db.comment.ALL, orderby=~db.comment.creation_date | ~db.comment.upvotes, limitby=(page * 10, ((page * 10) + 11))).as_list()
+    for comment in comments:
+        upvote = db((db.comment_upvote.comment_id == comment["id"]) & (db.comment_upvote.created_by == user_email)).select().first()
+        if upvote:
+            comment["up"] = upvote.up
+            comment["down"] = upvote.down
+        else:
+            comment["up"] = False
+            comment["down"] = False
     return dict(comments=comments)
 
-
+@action('delete_comment', method="POST")
+@action.uses(db, session, url_signer.verify())
+def delete_comment():
+    comment_id = request.json.get('id')
+    brawl_id = request.json.get('brawl_id')
+    db(db.comment.id == comment_id).delete()
+    brawl_check = db(db.brawl.id == brawl_id)
+    brawl = brawl_check.select().first()
+    brawl_check.update(
+        comments = brawl.comments - 1
+        )
+    return "ok"
 
 
 

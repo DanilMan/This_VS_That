@@ -11,6 +11,7 @@ let init = (app) => {
     app.data = {
         // Complete as you see fit.
         user: false,
+        user_email: "",
         results_page: 0,
         query: "",
         query_len: 0,
@@ -140,6 +141,30 @@ let init = (app) => {
             brawl = app.vue.results[index];
         }
         brawl.comment = "";
+    };
+    
+    app.delete_comment = function (index, c_index, b_data) {
+        let brawl = {};
+        if(b_data === 0){
+            brawl = app.vue.brawls[index];
+        }else{
+            brawl = app.vue.results[index];
+        }
+        _brawl_id = brawl.id;
+        comment_id = brawl.comment_array[c_index].id;
+        axios.post(delete_comment_url,
+        {
+            id: comment_id,
+            brawl_id: _brawl_id
+        }).then(function () {
+            for (let i = 0; i < brawl.comment_array.length; i++) {
+                if (brawl.comment_array[i].id == comment_id) {
+                    brawl.comment_array.splice(i, 1);
+                    break;
+                }
+            }
+            brawl.comments = brawl.comments - 1;
+        });
     };
     
     app.set_brawl_mode = function () {
@@ -341,6 +366,7 @@ let init = (app) => {
         get_comments: app.get_comments,
         clear_comments: app.clear_comments,
         show_comments_post: app.show_comments_post,
+        delete_comment: app.delete_comment,
     };
 
     // This creates the Vue instance.
@@ -360,6 +386,7 @@ let init = (app) => {
                 app.enumerate(brawls);
                 app.vue.brawls = brawls;
                 app.vue.user = result.data.has_user;
+                app.vue.user_email = result.data.user_email;
             });
         
         for(i = 0; i < 8; i++){
