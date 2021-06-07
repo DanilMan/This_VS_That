@@ -18,22 +18,22 @@ def get_time():
 
 db.define_table(
     'brawl',
-    Field('upvotes', 'integer', default=0, requires=IS_INT_IN_RANGE(0, 1e6)),
-    Field('comments', 'integer', default=0, requires=IS_INT_IN_RANGE(0, 1e6)),
-    Field('num_of_public', 'integer', default=0, requires=IS_INT_IN_RANGE(0, 1e6)),
-    Field('num_of_plays', 'integer', default=1, requires=IS_INT_IN_RANGE(0, 1e6)),
+    Field('upvotes', 'integer', default=0),
+    Field('comments', 'integer', default=0),
+    Field('num_of_public', 'integer', default=0),
+    Field('num_of_plays', 'integer', default=1),
 )
 
 db.define_table(
     'item_name',
     Field('item_str', requires=IS_NOT_EMPTY()),
-    Field('num_of_uses', 'integer', default=0, requires=IS_INT_IN_RANGE(0, 1e6)),
+    Field('num_of_uses', 'integer', default=0),
 )
 
 db.define_table(
     'item',
     Field('item_name_id', 'reference item_name'),
-    Field('num_of_wins', 'integer', default=0, requires=IS_INT_IN_RANGE(0, 1e6)),
+    Field('num_of_wins', 'integer', default=0),
     Field('brawl_id', 'reference brawl'),
 )
 
@@ -59,7 +59,7 @@ db.define_table(
     Field('brawl_id', 'reference brawl'),
     Field('bcomment'),
     Field('comment_user'),
-    Field('upvotes', 'integer', default=0, requires=IS_INT_IN_RANGE(0, 1e6)),
+    Field('upvotes', 'integer', default=0),
     Field('created_by', default=get_user_email),
     Field('creation_date', 'datetime', default=get_time),
 )

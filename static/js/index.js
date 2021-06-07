@@ -92,6 +92,7 @@ let init = (app) => {
             brawl = app.vue.results[index];
         }
         brawl.show_comments = !brawl.show_comments;
+        brawl.load_more = 0;
     };
     
     app.show_comments_post = function (index, b_data) {
@@ -113,9 +114,25 @@ let init = (app) => {
         }else{
             brawl = app.vue.results[index];
         }
-        axios.get(get_comments_url, {params: {brawl_id: brawl.id}})
+        axios.get(get_comments_url, {params: {brawl_id: brawl.id, load_more: brawl.load_more}})
             .then(function (result) {
                 brawl.comment_array = result.data.comments;
+                brawl.comments = result.data.comments_count;
+            });
+    };
+    
+    app.get_comments_before_post = function (index, b_data) {
+        let brawl = {};
+        if(b_data === 0){
+            brawl = app.vue.brawls[index];
+        }else{
+            brawl = app.vue.results[index];
+        }
+        axios.get(get_comments_url, {params: {brawl_id: brawl.id, load_more: brawl.load_more}})
+            .then(function (result) {
+                brawl.comment_array = result.data.comments;
+                brawl.comments = result.data.comments_count;
+                app.post_comment(index, b_data);
             });
     };
     
@@ -130,6 +147,9 @@ let init = (app) => {
     };
     
     app.write_comment_mode = function (index, b_data, mode) {
+        if(!app.vue.user){
+            return;
+        }
         let brawl = {};
         if(b_data === 0){
             brawl = app.vue.brawls[index];
@@ -248,7 +268,10 @@ let init = (app) => {
                 id: response.data.comment_id,
                 bcomment: brawl.comment,
                 upvotes: 0,
-                comment_user: response.data.name
+                comment_user: response.data.name,
+                created_by: app.vue.user_email,
+                up: false,
+                down: false
             });
             brawl.comments = brawl.comments + 1;
             app.empty_comment(index, b_data);
@@ -422,6 +445,10 @@ let init = (app) => {
             }
         });
     };
+    
+    app.kFormatter = function(num) {
+        return Math.abs(num) > 999 ? Math.sign(num)*((Math.abs(num)/1000).toFixed(1)) + 'k' : Math.sign(num)*Math.abs(num);
+    };  // found this beauty @ https://stackoverflow.com/questions/9461621/format-a-number-as-2-5k-if-a-thousand-or-more-otherwise-900
 
     // This contains all the methods.
     app.methods = {
@@ -446,6 +473,8 @@ let init = (app) => {
         delete_comment: app.delete_comment,
         upvote_comment: app.upvote_comment,
         downvote_comment: app.downvote_comment,
+        get_comments_before_post: app.get_comments_before_post,
+        kFormatter: app.kFormatter,
     };
 
     // This creates the Vue instance.

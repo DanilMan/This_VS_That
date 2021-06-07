@@ -129,7 +129,7 @@
                                     <div>
                                         <p class="heading has-text-black-bis is-size-4 has-text-weight-medium is-size-3-fullhd is-size-3-widescreen is-size-6-touch is-size-6-mobile">{{name}}</p>
                                         <p>
-                                            <span class="title has-text-black-bis is-size-4 has-text-weight-bold is-size-2-fullhd is-size-2-widescreen is-size-6-touch is-size-6-mobile">{{brawl._num_of_wins[index].toLocaleString()}}</span>
+                                            <span class="title has-text-black-bis is-size-4 has-text-weight-bold is-size-2-fullhd is-size-2-widescreen is-size-6-touch is-size-6-mobile">{{kFormatter(brawl._num_of_wins[index])}}</span>
                                             <span class="title has-text-black-bis is-size-6 has-text-weight-semibold is-size-5-fullhd is-size-5-widescreen is-size-7-touch is-size-7-mobile">
                                                 <span v-if="brawl._num_of_wins[index] == 1">win</span>
                                                 <span v-else>wins</span>
@@ -151,16 +151,16 @@
                             <div class="level-item has-text-centered">
                                 <span v-if="brawl.up" class="icon is-size-3 has-text-primary mr-1 px-1 pt-1" @click="upvote(bindex, 0)"><i class="fa fa-arrow-up"></i></span>
                                 <span v-else class="icon is-size-3 has-text-black-bis mr-1 px-1 pt-1" @click="upvote(bindex, 0)"><i class="fa fa-arrow-up"></i></span>
-                                <h1 class="subtitle has-text-black-bis is-2 has-text-weight-semibold mx-1">{{brawl.upvotes}}</h1>
+                                <h1 class="subtitle has-text-black-bis is-2 has-text-weight-semibold mx-1">{{kFormatter(brawl.upvotes)}}</h1>
                                 <span v-if="brawl.down" class="icon is-size-3 has-text-primary ml-1 px-1 pt-1" @click="downvote(bindex, 0)"><i class="fa fa-arrow-down"></i></span>
                                 <span v-else class="icon is-size-3 has-text-black-bis ml-1 px-1 pt-1" @click="downvote(bindex, 0)"><i class="fa fa-arrow-down"></i></span>
                             </div>
                             <div class="level-right">
                                 <div class="buttons">
                                     <div class="level-item has-text-centered">
-                                        <button v-if="brawl.show_comments && brawl.comments > 0" class="button is-light has-text-centered px-2"><span class="icon is-size-3 has-text-black-bis" @click="show_comments(bindex, 0) + clear_comments(bindex, 0)"><i class="fa fa-angle-down"></i></span></button>
-                                        <button v-if="!brawl.show_comments && brawl.comments > 0" class="button is-black has-text-centered px-2" @click="show_comments(bindex, 0) + get_comments(bindex, 0)"><span class="icon is-size-3 has-text-grey"><i class="fa fa-angle-up"></i></span></button>
-                                        <button v-if="user" class="button is-primary has-text-centered px-2">
+                                        <button v-if="brawl.show_comments && brawl.comments > 0" class="button is-light has-text-centered px-3 ml-1" @click="show_comments(bindex, 0) + clear_comments(bindex, 0)"><span class="icon is-size-3 has-text-black-bis"><i class="fa fa-angle-down"></i></span></button>
+                                        <button v-if="!brawl.show_comments && brawl.comments > 0" class="button is-black has-text-centered px-3 ml-1" @click="show_comments(bindex, 0) + get_comments(bindex, 0)"><span class="icon is-size-3 has-text-grey"><i class="fa fa-angle-up"></i></span></button>
+                                        <button class="button is-primary has-text-centered px-2">
                                             <h6 class="subtitle has-text-black-bis is-7 has-text-weight-bold" @click="write_comment_mode(bindex, 0, true)">COMMENT</h6>
                                         </button>
                                     </div>
@@ -178,7 +178,7 @@
                                         <span>
                                             <p>
                                                 <button class="button has-background-primary-dark is-grey has-text-centered px-4 mb-2">
-                                                    <h6 class="subtitle has-text-white-ter is-7 has-text-weight-bold" @click="show_comments_post(bindex, 0) + get_comments(bindex, 0) + post_comment(bindex, 0) + write_comment_mode(bindex, 0, false)">POST</h6>
+                                                    <h6 class="subtitle has-text-white-ter is-7 has-text-weight-bold" @click="show_comments_post(bindex, 0) + get_comments_before_post(bindex, 0) + write_comment_mode(bindex, 0, false)">POST</h6>
                                                 </button>
                                             </p>
                                             <p>
@@ -192,7 +192,7 @@
                             </nav>
                         </section>
                         <div v-for="(comment, cindex) in brawl.comment_array" :key="comment.id">
-                            <div class="notification is-primary py-2 mb-3">
+                            <div v-if="cindex !== ((brawl.load_more * 10) + 11)" class="notification is-primary py-2 mb-3">
                                 <h6 class="subtitle has-text-left has-text-black-bis is-7 has-text-weight-semibold">{{comment.comment_user}}</h6>
                                 <h6 class="title has-text-left has-text-black-bis is-6 has-text-weight-medium mb-3">{{comment.bcomment}}</h6>
                                 <nav class="level is-mobile">
@@ -200,7 +200,7 @@
                                         <div class="level-item has-text-centered">
                                             <span v-if="comment.up" class="icon is-size-4 has-text-link-dark mr-1 px-1 pt-1" @click="upvote_comment(bindex, cindex, 0)"><i class="fa fa-arrow-up"></i></span>
                                             <span v-else class="icon is-size-4 has-text-black-bis mr-1 px-1 pt-1" @click="upvote_comment(bindex, cindex, 0)"><i class="fa fa-arrow-up"></i></span>
-                                            <h1 class="subtitle has-text-black-bis is-3 has-text-weight-semibold mx-1">{{comment.upvotes}}</h1>
+                                            <h1 class="subtitle has-text-black-bis is-3 has-text-weight-semibold mx-1">{{kFormatter(comment.upvotes)}}</h1>
                                             <span v-if="comment.down" class="icon is-size-4 has-text-link-dark ml-1 px-1 pt-1" @click="downvote_comment(bindex, cindex, 0)"><i class="fa fa-arrow-down"></i></span>
                                             <span v-else class="icon is-size-4 has-text-black-bis ml-1 px-1 pt-1" @click="downvote_comment(bindex, cindex, 0)"><i class="fa fa-arrow-down"></i></span>
                                         </div>
@@ -215,6 +215,13 @@
                                 </nav>
                             </div>
                         </div>
+                        <nav class="level is-mobile">
+                            <div class="level-item has-text-centered">
+                                <button v-if="brawl.comment_array.length > ((brawl.load_more * 10) + 10)" class="button has-background-grey-lighter is-grey has-text-centered m-0 py-2 px-3">
+                                    <h6 class="subtitle has-text-black-bis is-6 has-text-weight-bold" @click="(brawl.load_more++) + get_comments(bindex, 0)">LOAD MORE</h6>
+                                </button>
+                            </div>
+                        </nav>
                     </div>
                 </section>
             </div>
@@ -232,7 +239,7 @@
                                     <div>
                                         <p class="heading has-text-black-bis is-size-4 has-text-weight-medium is-size-3-fullhd is-size-3-widescreen is-size-6-touch is-size-6-mobile">{{name}}</p>
                                         <p>
-                                            <span class="title has-text-black-bis is-size-4 has-text-weight-bold is-size-2-fullhd is-size-2-widescreen is-size-6-touch is-size-6-mobile">{{r._num_of_wins[index]}}</span>
+                                            <span class="title has-text-black-bis is-size-4 has-text-weight-bold is-size-2-fullhd is-size-2-widescreen is-size-6-touch is-size-6-mobile">{{kFormatter(r._num_of_wins[index])}}</span>
                                             <span class="title has-text-black-bis is-size-6 has-text-weight-semibold is-size-5-fullhd is-size-5-widescreen is-size-7-touch is-size-7-mobile">
                                                 <span v-if="r._num_of_wins[index] == 1">win</span>
                                                 <span v-else>wins</span>
@@ -254,16 +261,16 @@
                             <div class="level-item has-text-centered">
                                 <span v-if="r.up" class="icon is-size-3 has-text-primary mr-1 px-1 pt-1" @click="upvote(rindex, 1)"><i class="fa fa-arrow-up"></i></span>
                                 <span v-else class="icon is-size-3 has-text-black-bis mr-1 px-1 pt-1" @click="upvote(rindex, 1)"><i class="fa fa-arrow-up"></i></span>
-                                <h1 class="subtitle has-text-black-bis is-2 has-text-weight-semibold mx-1">{{r.upvotes}}</h1>
+                                <h1 class="subtitle has-text-black-bis is-2 has-text-weight-semibold mx-1">{{kFormatter(r.upvotes)}}</h1>
                                 <span v-if="r.down" class="icon is-size-3 has-text-primary ml-1 px-1 pt-1" @click="downvote(rindex, 1)"><i class="fa fa-arrow-down"></i></span>
                                 <span v-else class="icon is-size-3 has-text-black-bis ml-1 px-1 pt-1" @click="downvote(rindex, 1)"><i class="fa fa-arrow-down"></i></span>
                             </div>
                             <div class="level-right">
                                 <div class="buttons">
                                     <div class="level-item has-text-centered">
-                                        <button v-if="r.show_comments && r.comments > 0" class="button is-light has-text-centered px-2"><span class="icon is-size-3 has-text-black-bis" @click="show_comments(rindex, 1) + clear_comments(rindex, 1)"><i class="fa fa-angle-down"></i></span></button>
-                                        <button v-if="!r.show_comments && r.comments > 0" class="button is-black has-text-centered px-2" @click="show_comments(rindex, 1) + get_comments(rindex, 1)"><span class="icon is-size-3 has-text-grey"><i class="fa fa-angle-up"></i></span></button>
-                                        <button v-if="user" class="button is-primary has-text-centered px-2">
+                                        <button v-if="r.show_comments && r.comments > 0" class="button is-light has-text-centered px-3 ml-1" @click="show_comments(rindex, 1) + clear_comments(rindex, 1)"><span class="icon is-size-3 has-text-black-bis"><i class="fa fa-angle-down"></i></span></button>
+                                        <button v-if="!r.show_comments && r.comments > 0" class="button is-black has-text-centered px-3 ml-1" @click="show_comments(rindex, 1) + get_comments(rindex, 1)"><span class="icon is-size-3 has-text-grey"><i class="fa fa-angle-up"></i></span></button>
+                                        <button class="button is-primary has-text-centered px-2">
                                             <h6 class="subtitle has-text-black-bis is-7 has-text-weight-bold" @click="write_comment_mode(rindex, 1, true)">COMMENT</h6>
                                         </button>
                                     </div>
@@ -281,7 +288,7 @@
                                         <span>
                                             <p>
                                                 <button class="button has-background-primary-dark is-grey has-text-centered px-4 mb-2">
-                                                    <h6 class="subtitle has-text-white-ter is-7 has-text-weight-bold" @click="show_comments_post(rindex, 1) + get_comments(rindex, 1) + post_comment(rindex, 1) + write_comment_mode(rindex, 1, false)">POST</h6>
+                                                    <h6 class="subtitle has-text-white-ter is-7 has-text-weight-bold" @click="show_comments_post(rindex, 1) + get_comments_before_post(rindex, 1) + write_comment_mode(rindex, 1, false)">POST</h6>
                                                 </button>
                                             </p>
                                             <p>
@@ -295,7 +302,7 @@
                             </nav>
                         </section>
                         <div v-for="(rcomment, crindex) in r.comment_array" :key="rcomment.id">
-                            <div class="notification is-primary py-2 mb-3">
+                            <div v-if="crindex !== ((r.load_more * 10) + 11)" class="notification is-primary py-2 mb-3">
                                 <h6 class="subtitle has-text-left has-text-black-bis is-7 has-text-weight-semibold">{{rcomment.comment_user}}</h6>
                                 <h6 class="title has-text-left has-text-black-bis is-6 has-text-weight-medium mb-3">{{rcomment.bcomment}}</h6>
                                 <nav class="level is-mobile">
@@ -303,7 +310,7 @@
                                         <div class="level-item has-text-centered">
                                             <span v-if="rcomment.up" class="icon is-size-4 has-text-link-dark mr-1 px-1 pt-1" @click="upvote_comment(rindex, crindex, 1)"><i class="fa fa-arrow-up"></i></span>
                                             <span v-else class="icon is-size-4 has-text-black-bis mr-1 px-1 pt-1" @click="upvote_comment(rindex, crindex, 1)"><i class="fa fa-arrow-up"></i></span>
-                                            <h1 class="subtitle has-text-black-bis is-3 has-text-weight-semibold mx-1">{{rcomment.upvotes}}</h1>
+                                            <h1 class="subtitle has-text-black-bis is-3 has-text-weight-semibold mx-1">{{kFormatter(rcomment.upvotes)}}</h1>
                                             <span v-if="rcomment.down" class="icon is-size-4 has-text-link-dark ml-1 px-1 pt-1" @click="downvote_comment(rindex, crindex, 1)"><i class="fa fa-arrow-down"></i></span>
                                             <span v-else class="icon is-size-4 has-text-black-bis ml-1 px-1 pt-1" @click="downvote_comment(rindex, crindex, 1)"><i class="fa fa-arrow-down"></i></span>
                                         </div>
@@ -318,6 +325,13 @@
                                 </nav>
                             </div>
                         </div>
+                        <nav class="level is-mobile">
+                            <div class="level-item has-text-centered">
+                                <button v-if="r.comment_array.length > ((r.load_more * 10) + 10)" class="button has-background-grey-lighter is-grey has-text-centered m-0 py-2 px-3">
+                                    <h6 class="subtitle has-text-black-bis is-6 has-text-weight-bold" @click="(r.load_more++) + get_comments(rindex, 1)">LOAD MORE</h6>
+                                </button>
+                            </div>
+                        </nav>
                     </div>
                 </section>
             </div>

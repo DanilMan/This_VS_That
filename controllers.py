@@ -88,6 +88,7 @@ def load_brawls():
         brawl["show_comments"] = False
         brawl["write_comment"] = False
         brawl["comment_array"] = []
+        brawl["load_more"] = 0
         upvote = db((db.upvote.brawl_id == brawl["id"]) & (db.upvote.created_by == _user_email)).select().first()
         if upvote:
             brawl["up"] = upvote.up
@@ -171,7 +172,7 @@ def search():
         _query = _query & (db.brawl.num_of_public != 0)
 
         if _query:
-            rows = db(_query).select(db.brawl.ALL, orderby=~db.brawl.num_of_public | ~db.brawl.upvotes, limitby=(page * 10, ((page * 10) + 11))).as_list()
+            rows = db(_query).select(db.brawl.ALL, orderby=~db.brawl.num_of_public | ~db.brawl.upvotes | ~db.brawl.comments, limitby=(page * 10, ((page * 10) + 11))).as_list()
             count = 0
             for row in rows:
                 items = db(db.item.brawl_id == row["id"]).select(db.item.ALL, orderby=~db.item.num_of_wins)
@@ -186,6 +187,7 @@ def search():
                 row["show_comments"] = False
                 row["write_comment"] = False
                 row["comment_array"] = []
+                row["load_more"] = 0
                 upvote = db((db.upvote.brawl_id == row["id"]) & (db.upvote.created_by == _user_email)).select().first()
                 if upvote:
                     row["up"] = upvote.up
@@ -560,8 +562,12 @@ def post_comment():
 def get_comments():
     user_email = get_user_email()
     brawl_id = request.params.get("brawl_id")
-    page = 0
-    comments = db(db.comment.brawl_id == brawl_id).select(db.comment.ALL, orderby=~db.comment.creation_date | ~db.comment.upvotes, limitby=(page * 10, ((page * 10) + 11))).as_list()
+    load = int(request.params.get("load_more"))
+    
+    brawl = db(db.brawl.id == brawl_id).select().first()
+    comments_count = brawl.comments
+    
+    comments = db(db.comment.brawl_id == brawl_id).select(db.comment.ALL, orderby=~db.comment.upvotes | ~db.comment.creation_date, limitby=(0, ((load * 10) + 11))).as_list()
     for comment in comments:
         upvote = db((db.comment_upvote.comment_id == comment["id"]) & (db.comment_upvote.created_by == user_email)).select().first()
         if upvote:
@@ -570,7 +576,7 @@ def get_comments():
         else:
             comment["up"] = False
             comment["down"] = False
-    return dict(comments=comments)
+    return dict(comments=comments, comments_count=comments_count)
 
 @action('delete_comment', method="POST")
 @action.uses(db, session, url_signer.verify())
