@@ -40,7 +40,8 @@ db.define_table(
 db.define_table(
     'user_brawl',
     Field('brawl_id', 'reference brawl'),
-    Field('placement_order_ids', 'list:integer'),
+    Field('first_item', 'integer'),
+    Field('placement_list'),
     Field('created_by', default=get_user_email),
     Field('creation_date', 'datetime', default=get_time),
     Field('public', 'boolean', default=False),

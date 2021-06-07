@@ -132,7 +132,8 @@ def load_user_brawls():
         result["public"] = row.public
         result["names"] = []
         result["showings"] = True
-        for _index, _id in enumerate(row.placement_order_ids):
+        placement = [int(i) for i in row.placement_list.split(",")]
+        for _index, _id in enumerate(placement):    #for _index, _id in enumerate(row.placement_order_ids): !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             item = db(db.item.id == _id).select().first()
             name = db(db.item_name.id == item.item_name_id).select().first()
             result["names"].append(name.item_str)
@@ -289,6 +290,12 @@ def submit():
                 itemname = db(db.item_name.id == item["item_name_id"]).select().first()
                 players.append(itemname.item_str)
                 item_placement.append(item["id"])
+                
+            placement_order = ""
+            comma = ""
+            for items_id in item_placement:
+                placement_order +=  comma + str(items_id)
+                comma = ","
             
             _user_brawl = 0
             
@@ -300,9 +307,13 @@ def submit():
                         num_of_uses = itemname.num_of_uses + 1
                         )
                 
+                
+                
                 _user_brawl = db.user_brawl.insert(
                     brawl_id = brawl_id,
-                    placement_order_ids = item_placement,
+                    #placement_order_ids = item_placement,    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    placement_list = placement_order,
+                    first_item = item_placement[0],
                     public = publix
                 )
             else:
@@ -310,7 +321,7 @@ def submit():
                 _user_brawl = user_brawl_check.select().first()
                 if _user_brawl:
                     if _user_brawl.public:
-                        check_item_wins = db(db.item.id == _user_brawl.placement_order_ids[0])
+                        check_item_wins = db(db.item.id == _user_brawl.first_item)
                         item_for_wins = check_item_wins.select().first()
                         check_item_wins.update(
                             num_of_wins = item_for_wins.num_of_wins - 1
@@ -324,14 +335,18 @@ def submit():
                         )
                     _user_brawl = _user_brawl.id
                     user_brawl_check.update(
-                        placement_order_ids = item_placement,
+                        #placement_order_ids = item_placement, #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        placement_list = placement_order,
+                        first_item = item_placement[0],
                         public = publix,
                         creation_date = get_time()
                         )
                 else:
                     _user_brawl = db.user_brawl.insert(
                         brawl_id = brawl_id,
-                        placement_order_ids = item_placement,
+                        #placement_order_ids = item_placement, #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        placement_list = placement_order,
+                        first_item = item_placement[0],
                         public = publix
                     )
                     for item in items:
@@ -374,8 +389,8 @@ def rematch():
         players.append(item_name.item_str)
         placement.append(item["id"])
     
-    if (element["public"]) and ((user_brawl.placement_order_ids)[0] != (items[0])["id"]):
-        orig_item_check = db(db.item.id == (user_brawl.placement_order_ids)[0])
+    if (element["public"]) and ((user_brawl.first_item) != (items[0])["id"]):
+        orig_item_check = db(db.item.id == (user_brawl.first_item))
         orig_item = orig_item_check.select().first()
         
         orig_item_check.update(
@@ -389,8 +404,16 @@ def rematch():
             num_of_wins = item.num_of_wins + 1
             )
     
+    placement_order = ""
+    comma =""
+    for item_id in placement:
+        placement_order += comma + str(item_id)
+        comma = ","
+    
     user_brawl_check.update(
-        placement_order_ids = placement,
+        #placement_order_ids = placement, #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        placement_list = placement_order,
+        first_item = placement[0],
         public = element["public"]
         )
     return dict(players=players)
@@ -419,7 +442,7 @@ def set_public():
         num_of_public = brawl.num_of_public + arith
         )
     
-    item_check = db(db.item.id == (user_brawl.placement_order_ids)[0])
+    item_check = db(db.item.id == (user_brawl.first_item))
     item = item_check.select().first()
     
     item_check.update(
@@ -457,7 +480,7 @@ def _delete():
             num_of_public = brawl.num_of_public - arith,
             num_of_plays = brawl.num_of_plays - 1
             )
-        item_check = db(db.item.id == (user_brawl.placement_order_ids)[0])
+        item_check = db(db.item.id == (user_brawl.first_item))
         item = item_check.select().first()
         item_check.update(
             num_of_wins = item.num_of_wins - arith
